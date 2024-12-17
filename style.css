@@ -6,9 +6,15 @@
   box-sizing: border-box;
 }
 
+html {
+  background: ghostwhite;
+}
+
 body {
+  background: ghostwhite;
   color: indigo;
   font-family: sans-serif;
+  overflow: hidden;
 }
 
 .tree {
