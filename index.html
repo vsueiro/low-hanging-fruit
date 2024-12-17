@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Low-hanging-fruit</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="script.js" defer></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "d3": "https://cdn.jsdelivr.net/npm/d3@7/+esm"
+        }
+      }
+    </script>
+    <script src="script.js" type="module"></script>
   </head>
   <body>
     <div class="tree">

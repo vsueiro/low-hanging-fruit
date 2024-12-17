@@ -1,3 +1,5 @@
+import * as d3 from "d3";
+
 // Aliases for brevity
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
@@ -5,13 +7,28 @@ const $$ = document.querySelectorAll.bind(document);
 // Global constants
 const treetop = $(".treetop");
 const cursor = $(".cursor");
+const ripeColor = d3.interpolateHcl("LightSeaGreen", "Tomato");
+const ripeScale = d3.scaleLinear().domain([40, 60]).range([0, 1]).clamp(true);
 
 // Global variables
-let draggedElement = null;
+let draggedFruit = null;
 
 // Helpers
 function html(string) {
-  return document.createRange().createContextualFragment(string);
+  // Create a DocumentFragment
+  const fragment = document.createRange().createContextualFragment(string);
+
+  console.log(...fragment.children);
+
+  // If it has a single child element, return it
+  if (fragment.childElementCount === 1) {
+    return fragment.firstElementChild;
+  }
+
+  // Otherwise, wrap all children in a div and return them
+  const div = document.createElement("div");
+  div.append(...fragment.children);
+  return div;
 }
 
 function clamp(num, lower = 0, upper = 100) {
@@ -32,10 +49,14 @@ function locate(event, element) {
 }
 
 function move(element, x, y) {
-  if (!element) return;
+  console.log(element);
 
   element.style.left = x + "%";
   element.style.top = y + "%";
+}
+
+function color(fruit, x) {
+  fruit.style.background = ripeColor(ripeScale(x));
 }
 
 // Events
@@ -43,34 +64,39 @@ treetop.addEventListener("pointermove", (event) => {
   const { x, y } = locate(event, treetop);
 
   move(cursor, x, y);
-  move(draggedElement, x, y);
+
+  if (draggedFruit) {
+    move(draggedFruit, x, y);
+    color(draggedFruit, x);
+  }
 });
 
 document.addEventListener("pointerdown", (event) => {
   const { target } = event;
   if (target.classList.contains("fruit")) {
-    draggedElement = target;
+    draggedFruit = target;
   }
 });
 
 document.addEventListener("pointerup", () => {
   // Add delay to prevent click from firing
   setTimeout(() => {
-    draggedElement = null;
+    draggedFruit = null;
   }, 100);
 });
 
 treetop.addEventListener("click", (event) => {
-  // console.log(event.target, draggedElement);
-
-  if (draggedElement) return;
+  if (draggedFruit) return;
 
   const { x, y } = locate(event, treetop);
-  const fruit = `
-    <div class="fruit" style="left: ${x}%; top: ${y}%">
+  const fruit = html(`
+    <div class="fruit">
       <textarea rows="4" cols="24" placeholder="Task description"></textarea>
     </div>
-  `;
+  `);
 
-  treetop.append(html(fruit));
+  move(fruit, x, y);
+  color(fruit, x);
+
+  treetop.append(fruit);
 });
