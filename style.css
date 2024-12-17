@@ -14,10 +14,11 @@ body {
 
 .treetop {
   aspect-ratio: 1;
-  background: turquoise;
+  background: powderblue;
   place-self: center;
   position: relative;
   width: clamp(288px, 60vw, 640px);
+  border-radius: 16px;
 }
 
 .cursor {
@@ -30,6 +31,7 @@ body {
   transition: opacity 0.4s;
   translate: -50% -50%;
   width: 32px;
+  z-index: 2;
 }
 
 .treetop:hover .cursor {
@@ -44,6 +46,7 @@ body {
   width: clamp(16px, 6.666%, 48px);
   overflow: hidden;
   translate: -50% -50%;
+  z-index: 1;
 }
 
 textarea::placeholder {
