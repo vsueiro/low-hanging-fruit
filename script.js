@@ -59,6 +59,10 @@ function color(fruit, x) {
   fruit.style.background = ripeColor(ripeScale(x));
 }
 
+function focus(fruit) {
+  fruit.querySelector("textarea").focus();
+}
+
 // Events
 treetop.addEventListener("pointermove", (event) => {
   const { x, y } = locate(event, treetop);
@@ -73,14 +77,20 @@ treetop.addEventListener("pointermove", (event) => {
 
 document.addEventListener("pointerdown", (event) => {
   const { target } = event;
-  if (target.classList.contains("fruit")) {
-    draggedFruit = target;
+
+  const fruit = target.closest(".fruit");
+
+  if (fruit) {
+    draggedFruit = fruit;
+    draggedFruit.style.zIndex = 3;
+    focus(draggedFruit);
   }
 });
 
 document.addEventListener("pointerup", () => {
   // Add delay to prevent click from firing
   setTimeout(() => {
+    draggedFruit.style.zIndex = 2;
     draggedFruit = null;
   }, 100);
 });
@@ -91,7 +101,7 @@ treetop.addEventListener("click", (event) => {
   const { x, y } = locate(event, treetop);
   const fruit = html(`
     <div class="fruit">
-      <textarea rows="4" cols="24" placeholder="Task description"></textarea>
+      <textarea rows="2" cols="16" placeholder="Task description"></textarea>
     </div>
   `);
 
@@ -99,4 +109,6 @@ treetop.addEventListener("click", (event) => {
   color(fruit, x);
 
   treetop.append(fruit);
+
+  setTimeout(() => focus(fruit), 250);
 });
