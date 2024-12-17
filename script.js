@@ -19,7 +19,7 @@ function clamp(num, lower = 0, upper = 100) {
 }
 
 // Functions
-function getCoords(element, event) {
+function locate(event, element) {
   const rect = element.getBoundingClientRect();
 
   const { clientX, clientY } = event;
@@ -31,26 +31,24 @@ function getCoords(element, event) {
   return { x, y };
 }
 
+function move(element, x, y) {
+  if (!element) return;
+
+  element.style.left = x + "%";
+  element.style.top = y + "%";
+}
+
 // Events
 treetop.addEventListener("pointermove", (event) => {
-  const { x, y } = getCoords(treetop, event);
+  const { x, y } = locate(event, treetop);
 
-  // Update virtual cursor position
-  cursor.style.left = x + "%";
-  cursor.style.top = y + "%";
-
-  if (draggedElement) {
-    // Update dragged fruit position
-    draggedElement.style.left = x + "%";
-    draggedElement.style.top = y + "%";
-  }
-
-  console.log(x, y);
+  move(cursor, x, y);
+  move(draggedElement, x, y);
 });
 
 document.addEventListener("pointerdown", (event) => {
   const { target } = event;
-  if (target.classList.contains("draggable")) {
+  if (target.classList.contains("fruit")) {
     draggedElement = target;
   }
 });
@@ -63,11 +61,13 @@ document.addEventListener("pointerup", () => {
 });
 
 treetop.addEventListener("click", (event) => {
+  // console.log(event.target, draggedElement);
+
   if (draggedElement) return;
 
-  const { x, y } = getCoords(treetop, event);
+  const { x, y } = locate(event, treetop);
   const fruit = `
-    <div class="draggable fruit" style="left: ${x}%; top: ${y}%">
+    <div class="fruit" style="left: ${x}%; top: ${y}%">
       <textarea rows="4" cols="24" placeholder="Task description"></textarea>
     </div>
   `;
