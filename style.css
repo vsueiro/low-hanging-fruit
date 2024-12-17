@@ -23,7 +23,7 @@ body {
   overflow: hidden;
 }
 
-.tree {
+.scene {
   display: flex;
   height: 768px;
   justify-content: center;
@@ -74,11 +74,11 @@ body {
 }
 
 .lighting {
-  position: absolute;
-  inset: 0;
   background-image: linear-gradient(to right, indigo 50%, coral 50%);
+  inset: 0;
   mix-blend-mode: soft-light;
   opacity: 0.5;
+  position: absolute;
 }
 
 .ground {
@@ -207,4 +207,34 @@ textarea {
   opacity: 1;
   scale: 1;
   /* translate: -50% -100%; */
+}
+
+.ladder {
+  height: calc(480px + 120px);
+  left: calc(50% - 368px);
+  position: absolute;
+  top: 96px;
+  width: 64px;
+  background-image: linear-gradient(transparent 85%, lavender 85%);
+  background-size: 64px 40px;
+}
+
+.ladder::before,
+.ladder::after {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  border-radius: 3px;
+  background: lavender;
+}
+
+.ladder::before {
+  left: 0;
+}
+
+.ladder::after {
+  right: 0;
 }
