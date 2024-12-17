@@ -1,0 +1,68 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: indigo;
+  font-family: sans-serif;
+}
+
+.tree {
+  margin: 0 auto;
+  place-self: center;
+}
+
+.treetop {
+  aspect-ratio: 1;
+  background: turquoise;
+  place-self: center;
+  position: relative;
+  width: clamp(288px, 60vw, 640px);
+}
+
+.cursor {
+  aspect-ratio: 1;
+  border: 1px dashed;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 0.4s;
+  translate: -50% -50%;
+  width: 32px;
+}
+
+.treetop:hover .cursor {
+  opacity: 1;
+}
+
+.fruit {
+  aspect-ratio: 1;
+  background: tomato;
+  border-radius: 50%;
+  position: absolute;
+  width: clamp(16px, 6.666%, 48px);
+  overflow: hidden;
+  translate: -50% -50%;
+}
+
+textarea::placeholder {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+textarea {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: inherit;
+  display: block;
+  font-family: inherit;
+  font-size: inherit;
+  left: 50%;
+  position: absolute;
+  resize: none;
+  top: 50%;
+  translate: -50% -50%;
+  outline: none;
+  pointer-events: none;
+}
