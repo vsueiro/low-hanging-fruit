@@ -12,13 +12,15 @@ const ripeScale = d3.scaleLinear().domain([40, 60]).range([0, 1]).clamp(true);
 
 // Global variables
 let draggedFruit = null;
+let offsetX = 0;
+let offsetY = 0;
 
 // Helpers
 function html(string) {
   // Create a DocumentFragment
   const fragment = document.createRange().createContextualFragment(string);
 
-  console.log(...fragment.children);
+  // console.log(...fragment.children);
 
   // If it has a single child element, return it
   if (fragment.childElementCount === 1) {
@@ -36,23 +38,43 @@ function clamp(num, lower = 0, upper = 100) {
 }
 
 // Functions
+
+// Get % postition of pointer inside parent
 function locate(event, element) {
   const rect = element.getBoundingClientRect();
 
   const { clientX, clientY } = event;
   const { width, height, left, top } = rect;
 
+  // Normalize 0-100
   const x = clamp(((clientX - left) / width) * 100);
   const y = clamp(((clientY - top) / height) * 100);
 
   return { x, y };
 }
 
-function move(element, x, y) {
-  console.log(element);
+// Get % postition of fruit center
+function center(fruit, element) {
+  const fruitRect = fruit.getBoundingClientRect();
+  const rect = element.getBoundingClientRect();
 
-  element.style.left = x + "%";
-  element.style.top = y + "%";
+  const { width, height, left, top } = rect;
+
+  const x = fruitRect.left + fruitRect.width / 2;
+  const y = fruitRect.top + fruitRect.height / 2;
+
+  // Normalize 0-100
+  const centerX = clamp(((x - left) / width) * 100);
+  const centerY = clamp(((y - top) / height) * 100);
+
+  return { centerX, centerY };
+}
+
+function move(element, x, y) {
+  // console.log(element);
+
+  element.style.left = clamp(x) + "%";
+  element.style.top = clamp(y) + "%";
 }
 
 function color(fruit, x) {
@@ -70,7 +92,9 @@ treetop.addEventListener("pointermove", (event) => {
   move(cursor, x, y);
 
   if (draggedFruit) {
-    move(draggedFruit, x, y);
+    // console.log(x, offsetX);
+
+    move(draggedFruit, x - offsetX, y - offsetY);
     color(draggedFruit, x);
   }
 });
@@ -81,6 +105,11 @@ document.addEventListener("pointerdown", (event) => {
   const fruit = target.closest(".fruit");
 
   if (fruit) {
+    const { x, y } = locate(event, treetop);
+    const { centerX, centerY } = center(fruit, treetop);
+    offsetX = x - centerX;
+    offsetY = y - centerY;
+
     draggedFruit = fruit;
     draggedFruit.style.zIndex = 3;
     focus(draggedFruit);
@@ -88,6 +117,9 @@ document.addEventListener("pointerdown", (event) => {
 });
 
 document.addEventListener("pointerup", () => {
+  offsetX = 0;
+  offsetY = 0;
+
   // Add delay to prevent click from firing
   setTimeout(() => {
     if (draggedFruit) draggedFruit.style.zIndex = 2;
@@ -99,6 +131,7 @@ treetop.addEventListener("click", (event) => {
   if (draggedFruit) return;
 
   const { x, y } = locate(event, treetop);
+
   const fruit = html(`
     <div class="fruit">
       <textarea rows="2" cols="16" placeholder="Task description"></textarea>
