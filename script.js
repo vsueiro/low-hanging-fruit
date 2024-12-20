@@ -7,6 +7,8 @@ const $$ = document.querySelectorAll.bind(document);
 // Global constants
 const treetop = $(".treetop");
 const cursor = $(".cursor");
+const clearButton = $(".clear");
+
 const ripeColor = d3.interpolateHcl("LightSeaGreen", "Tomato");
 const ripeScale = d3.scaleLinear().domain([40, 60]).range([0, 1]).clamp(true);
 
@@ -85,17 +87,96 @@ function focus(fruit) {
   fruit.querySelector("textarea").focus();
 }
 
+function extractData() {
+  const data = [];
+
+  $$(".fruit").forEach((fruit) => {
+    const { left, top } = fruit.style;
+    const x = parseFloat(left) || 0;
+    const y = parseFloat(top) || 0;
+    const text = fruit.querySelector("textarea").value.trim();
+
+    data.push({ x, y, text });
+  });
+
+  return data;
+}
+
+function storeData() {
+  const data = extractData();
+  const json = JSON.stringify(data);
+
+  localStorage.setItem("fruits", json);
+}
+
+function recoverData() {
+  const json = localStorage.getItem("fruits");
+  if (!json) return;
+
+  const data = JSON.parse(json);
+
+  data.forEach((item) => {
+    const { x, y, text } = item;
+    createFruit(x, y, text);
+  });
+}
+
+function createFruit(x = 0, y = 0, text = "") {
+  const fruit = html(`
+    <div class="fruit">
+      <textarea rows="2" cols="16" placeholder="Task description"></textarea>
+    </div>
+  `);
+
+  move(fruit, x, y);
+  color(fruit, x);
+
+  treetop.append(fruit);
+
+  const textarea = fruit.querySelector("textarea");
+
+  textarea.value = text;
+  textarea.oninput = storeData;
+
+  return fruit;
+}
+
+function removeFruit(fruit, batch = false) {
+  fruit.remove();
+
+  if (!batch) {
+    storeData();
+  }
+}
+
+function removeFruits() {
+  const fruits = $$(".fruit");
+
+  fruits.forEach((fruit) => {
+    removeFruit(fruit, "batch");
+  });
+
+  storeData();
+}
+
+// Instructions
+recoverData();
+
 // Events
+clearButton.addEventListener("click", () => {
+  removeFruits();
+});
+
 treetop.addEventListener("pointermove", (event) => {
   const { x, y } = locate(event, treetop);
 
   move(cursor, x, y);
 
   if (draggedFruit) {
-    // console.log(x, offsetX);
-
     move(draggedFruit, x - offsetX, y - offsetY);
     color(draggedFruit, x);
+
+    storeData();
   }
 });
 
@@ -132,16 +213,8 @@ treetop.addEventListener("click", (event) => {
 
   const { x, y } = locate(event, treetop);
 
-  const fruit = html(`
-    <div class="fruit">
-      <textarea rows="2" cols="16" placeholder="Task description"></textarea>
-    </div>
-  `);
-
-  move(fruit, x, y);
-  color(fruit, x);
-
-  treetop.append(fruit);
-
+  const fruit = createFruit(x, y);
   setTimeout(() => focus(fruit), 250);
+
+  storeData();
 });
