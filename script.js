@@ -90,7 +90,7 @@ document.addEventListener("pointerdown", (event) => {
 document.addEventListener("pointerup", () => {
   // Add delay to prevent click from firing
   setTimeout(() => {
-    draggedFruit.style.zIndex = 2;
+    if (draggedFruit) draggedFruit.style.zIndex = 2;
     draggedFruit = null;
   }, 100);
 });
