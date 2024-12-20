@@ -22,7 +22,7 @@ body {
   font-variation-settings: "wdth" 100;
   font-weight: 400;
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 a {
@@ -261,6 +261,7 @@ textarea {
   top: 96px;
   translate: -50%;
   width: calc(480px + 12px);
+  user-select: none;
 }
 
 .axes::before,
