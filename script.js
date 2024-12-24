@@ -1,220 +1,147 @@
-import * as d3 from "d3";
+// Import Matter.js
+const {
+  Engine,
+  Render,
+  Runner,
+  World,
+  Bodies,
+  Mouse,
+  MouseConstraint,
+  Events,
+} = Matter;
 
-// Aliases for brevity
-const $ = document.querySelector.bind(document);
-const $$ = document.querySelectorAll.bind(document);
+// Create engine and world
+const engine = Engine.create();
+const { world } = engine;
+engine.gravity.y = 1;
 
-// Global constants
-const treetop = $(".treetop");
-const cursor = $(".cursor");
-const clearButton = $(".clear");
+const width = 800;
+const height = 600;
 
-const ripeColor = d3.interpolateHcl("LightSeaGreen", "Tomato");
-const ripeScale = d3.scaleLinear().domain([40, 60]).range([0, 1]).clamp(true);
+// Create renderer
+const render = Render.create({
+  element: document.body,
+  engine: engine,
+  options: {
+    width,
+    height,
+    wireframes: false,
+  },
+});
+Render.run(render);
 
-// Global variables
-let draggedFruit = null;
-let offsetX = 0;
-let offsetY = 0;
+const runner = Runner.create();
+Runner.run(runner, engine);
 
-// Helpers
-function html(string) {
-  // Create a DocumentFragment
-  const fragment = document.createRange().createContextualFragment(string);
+// Add boundaries (walls and floor/ceiling)
+const walls = [
+  Bodies.rectangle(width / 2, 0, width, 20, { isStatic: true }), // Top
+  Bodies.rectangle(width / 2, height, width, 20, { isStatic: true }), // Bottom
+  Bodies.rectangle(0, height / 2, 20, height, { isStatic: true }), // Left
+  Bodies.rectangle(width, height / 2, 20, height, { isStatic: true }), // Right
+];
+World.add(world, walls);
 
-  // console.log(...fragment.children);
+// Add central square
+const centerSquare = Bodies.rectangle(width / 2, height / 2, 200, 200, {
+  isStatic: true,
+  render: {
+    fillStyle: "rgba(100, 100, 255, 0.5)",
+  },
+  collisionFilter: {
+    category: 0x0002,
+    mask: 0x0004,
+  },
+});
+World.add(world, centerSquare);
 
-  // If it has a single child element, return it
-  if (fragment.childElementCount === 1) {
-    return fragment.firstElementChild;
-  }
-
-  // Otherwise, wrap all children in a div and return them
-  const div = document.createElement("div");
-  div.append(...fragment.children);
-  return div;
+// Add draggable circles
+const circles = [];
+for (let i = 0; i < 10; i++) {
+  const circle = Bodies.circle(
+    Math.random() * width,
+    (Math.random() * height) / 2,
+    20,
+    {
+      restitution: 0.8,
+    }
+  );
+  circles.push(circle);
+  World.add(world, circle);
 }
 
-function clamp(num, lower = 0, upper = 100) {
-  return Math.min(Math.max(num, lower), upper);
-}
-
-// Functions
-
-// Get % postition of pointer inside parent
-function locate(event, element) {
-  const rect = element.getBoundingClientRect();
-
-  const { clientX, clientY } = event;
-  const { width, height, left, top } = rect;
-
-  // Normalize 0-100
-  const x = clamp(((clientX - left) / width) * 100);
-  const y = clamp(((clientY - top) / height) * 100);
-
-  return { x, y };
-}
-
-// Get % postition of fruit center
-function center(fruit, element) {
-  const fruitRect = fruit.getBoundingClientRect();
-  const rect = element.getBoundingClientRect();
-
-  const { width, height, left, top } = rect;
-
-  const x = fruitRect.left + fruitRect.width / 2;
-  const y = fruitRect.top + fruitRect.height / 2;
-
-  // Normalize 0-100
-  const centerX = clamp(((x - left) / width) * 100);
-  const centerY = clamp(((y - top) / height) * 100);
-
-  return { centerX, centerY };
-}
-
-function move(element, x, y) {
-  // console.log(element);
-
-  element.style.left = clamp(x) + "%";
-  element.style.top = clamp(y) + "%";
-}
-
-function color(fruit, x) {
-  fruit.style.background = ripeColor(ripeScale(x));
-}
-
-function focus(fruit) {
-  fruit.querySelector("textarea").focus();
-}
-
-function extractData() {
-  const data = [];
-
-  $$(".fruit").forEach((fruit) => {
-    const { left, top } = fruit.style;
-    const x = parseFloat(left) || 0;
-    const y = parseFloat(top) || 0;
-    const text = fruit.querySelector("textarea").value.trim();
-
-    data.push({ x, y, text });
-  });
-
-  return data;
-}
-
-function storeData() {
-  const data = extractData();
-  const json = JSON.stringify(data);
-
-  localStorage.setItem("fruits", json);
-}
-
-function recoverData() {
-  const json = localStorage.getItem("fruits");
-  if (!json) return;
-
-  const data = JSON.parse(json);
-
-  data.forEach((item) => {
-    const { x, y, text } = item;
-    createFruit(x, y, text);
-  });
-}
-
-function createFruit(x = 0, y = 0, text = "") {
-  const fruit = html(`
-    <div class="fruit">
-      <textarea rows="2" cols="16" placeholder="Task description"></textarea>
-    </div>
-  `);
-
-  move(fruit, x, y);
-  color(fruit, x);
-
-  treetop.append(fruit);
-
-  const textarea = fruit.querySelector("textarea");
-
-  textarea.value = text;
-  textarea.oninput = storeData;
-
-  return fruit;
-}
-
-function removeFruit(fruit, batch = false) {
-  fruit.remove();
-
-  if (!batch) {
-    storeData();
-  }
-}
-
-function removeFruits() {
-  const fruits = $$(".fruit");
-
-  fruits.forEach((fruit) => {
-    removeFruit(fruit, "batch");
-  });
-
-  storeData();
-}
-
-// Instructions
-recoverData();
-
-// Events
-clearButton.addEventListener("click", () => {
-  removeFruits();
+// Adjust circles to avoid collision with the square
+circles.forEach((circle) => {
+  circle.collisionFilter = {
+    category: 0x0004,
+    mask: 0x0001,
+  };
 });
 
-treetop.addEventListener("pointermove", (event) => {
-  const { x, y } = locate(event, treetop);
+// Add mouse control
+const mouse = Mouse.create(render.canvas);
+const mouseConstraint = MouseConstraint.create(engine, {
+  mouse,
+  constraint: {
+    stiffness: 0.2,
+    render: {
+      visible: false,
+    },
+  },
+});
+World.add(world, mouseConstraint);
+render.mouse = mouse;
 
-  move(cursor, x, y);
+// Track circles that are "frozen" inside the central square
+const frozenCircles = new Set();
 
-  if (draggedFruit) {
-    move(draggedFruit, x - offsetX, y - offsetY);
-    color(draggedFruit, x);
+// Check if a circle is inside the square
+function isInsideSquare(circle, square) {
+  const { x, y } = circle.position;
+  const squareBounds = square.bounds;
+  return (
+    x > squareBounds.min.x &&
+    x < squareBounds.max.x &&
+    y > squareBounds.min.y &&
+    y < squareBounds.max.y
+  );
+}
 
-    storeData();
+// Update loop
+Events.on(engine, "beforeUpdate", () => {
+  for (const circle of circles) {
+    if (frozenCircles.has(circle)) {
+      // Keep frozen circles stationary
+      Matter.Body.setVelocity(circle, { x: 0, y: 0 });
+      Matter.Body.setPosition(circle, circle.position);
+      circle.isStatic = true; // Ensure frozen circles are fully static
+    } else {
+      circle.isStatic = false; // Allow unfrozen circles to behave normally
+    }
   }
 });
 
-document.addEventListener("pointerdown", (event) => {
-  const { target } = event;
-
-  const fruit = target.closest(".fruit");
-
-  if (fruit) {
-    const { x, y } = locate(event, treetop);
-    const { centerX, centerY } = center(fruit, treetop);
-    offsetX = x - centerX;
-    offsetY = y - centerY;
-
-    draggedFruit = fruit;
-    draggedFruit.style.zIndex = 3;
-    focus(draggedFruit);
+// Mouse events
+Events.on(mouseConstraint, "startdrag", (event) => {
+  const { body } = event;
+  if (body && circles.includes(body)) {
+    // If a frozen circle is clicked, make it dynamic for dragging
+    if (frozenCircles.has(body)) {
+      body.isStatic = false;
+      frozenCircles.delete(body);
+    }
   }
 });
 
-document.addEventListener("pointerup", () => {
-  offsetX = 0;
-  offsetY = 0;
-
-  // Add delay to prevent click from firing
-  setTimeout(() => {
-    if (draggedFruit) draggedFruit.style.zIndex = 2;
-    draggedFruit = null;
-  }, 100);
-});
-
-treetop.addEventListener("click", (event) => {
-  if (draggedFruit) return;
-
-  const { x, y } = locate(event, treetop);
-
-  const fruit = createFruit(x, y);
-  setTimeout(() => focus(fruit), 250);
-
-  storeData();
+Events.on(mouseConstraint, "enddrag", (event) => {
+  const { body } = event;
+  if (body && circles.includes(body)) {
+    if (isInsideSquare(body, centerSquare)) {
+      frozenCircles.add(body);
+      Matter.Body.setVelocity(body, { x: 0, y: 0 }); // Stop movement immediately
+      Matter.Body.setPosition(body, body.position); // Fix position
+    } else {
+      frozenCircles.delete(body);
+    }
+  }
 });
