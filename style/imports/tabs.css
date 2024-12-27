@@ -3,7 +3,7 @@
   border-radius: 999px;
   box-shadow: 0 0 0 0.3rem lavender;
   display: grid;
-  gap: 0.3rem;
+  gap: 0rem;
   grid-template-columns: 1fr 1fr;
   left: 2.4rem;
   position: absolute;
@@ -13,11 +13,50 @@
 }
 
 .tabs label {
+  align-items: center;
   border-radius: 999px;
   cursor: pointer;
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  opacity: 0.333;
   padding: 1.2rem 1.8rem;
+  position: relative;
+  transition: opacity 0.2s;
 }
 
-.tabs label:has(input:checked) {
-  background: ghostwhite;
+.tabs label:has(input:checked),
+.tabs label:hover {
+  opacity: 1;
+}
+
+.tabs input {
+  appearance: none;
+  margin: 0;
+}
+
+.tabs label:has(input:focus-visible) {
+  outline: 0.3rem solid deeppink;
+}
+
+.tabs::before {
+  background-color: white;
+  border-radius: 999px;
+  bottom: 0;
+  content: "";
+  display: block;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transition: translate 0.4s;
+  translate: 0%;
+  width: 50%;
+}
+
+.tabs:has([value="tree"]:checked)::before {
+  translate: 0%;
+}
+
+.tabs:has([value="list"]:checked)::before {
+  translate: 100%;
 }

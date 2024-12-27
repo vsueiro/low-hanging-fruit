@@ -1,0 +1,52 @@
+[data-icon] {
+  aspect-ratio: 1;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  display: inline-block;
+  width: 2.4rem;
+}
+
+[data-icon="tree"] {
+  background-image: url(../../media/icons/tree.svg);
+}
+
+[data-icon="list"] {
+  background-image: url(../../media/icons/list.svg);
+}
+
+[data-icon="arrow-down"] {
+  background-image: url(../../media/icons/arrow-down.svg);
+}
+
+[data-icon="arrow-up"] {
+  background-image: url(../../media/icons/arrow-up.svg);
+}
+
+[data-icon="chevron-down"] {
+  background-image: url(../../media/icons/chevron-down.svg);
+}
+
+[data-icon="chevron-up"] {
+  background-image: url(../../media/icons/chevron-up.svg);
+}
+
+[data-icon="upload"] {
+  background-image: url(../../media/icons/upload.svg);
+}
+
+[data-icon="download"] {
+  background-image: url(../../media/icons/download.svg);
+}
+
+[data-icon="clear"] {
+  background-image: url(../../media/icons/clear.svg);
+}
+
+[data-icon="refresh"] {
+  background-image: url(../../media/icons/refresh.svg);
+}
+
+[data-icon="github"] {
+  background-image: url(../../media/icons/github.svg);
+}

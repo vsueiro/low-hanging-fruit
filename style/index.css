@@ -2,10 +2,12 @@
 
 @import url(imports/reset.css);
 @import url(imports/general.css);
+@import url(imports/screen-reader.css);
 @import url(imports/app.css);
 @import url(imports/sidebar.css);
 @import url(imports/stage.css);
 @import url(imports/header.css);
 @import url(imports/accordion.css);
+@import url(imports/icons.css);
 @import url(imports/buttons.css);
 @import url(imports/tabs.css);

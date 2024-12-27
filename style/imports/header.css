@@ -16,6 +16,10 @@ header h1 strong {
   color: tomato;
 }
 
+header a {
+  display: block;
+}
+
 header {
   /* margin: 48px auto 0; */
   /* max-width: 1024px; */
