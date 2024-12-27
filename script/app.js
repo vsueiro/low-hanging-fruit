@@ -1,3 +1,3 @@
-import createAccordions from "./imports/createAccordions.js";
+import accordion from "./imports/accordion.js";
 
-createAccordions("details");
+accordion("details");

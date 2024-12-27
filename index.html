@@ -15,19 +15,48 @@
     <script src="script/app.js" type="module"></script>
   </head>
   <body>
-    <details>
-      <summary>Abc</summary>
-      Lorem ipsum dolor sit amet.
-    </details>
+    <header>
+      <a href="./">
+        <h1>L<span>o</span>w-hanging <strong>fruit</strong></h1>
+      </a>
+      <p>A playful impact × effort matrix for picking delicious tasks</p>
+    </header>
 
-    <details>
-      <summary>Def</summary>
-      Lorem ipsum dolor sit amet.
-    </details>
+    <aside>
+      <details>
+        <summary>How to use</summary>
+        Lorem ipsum dolor sit amet.
+      </details>
 
-    <details>
-      <summary>Ghi</summary>
-      Lorem ipsum dolor sit amet.
-    </details>
+      <details>
+        <summary>What is this</summary>
+        Lorem ipsum dolor sit amet.
+      </details>
+
+      <details>
+        <summary>Who made it</summary>
+        Lorem ipsum dolor sit amet.
+      </details>
+    </aside>
+
+    <div class="stage">
+      <div class="tree">[Tree here]</div>
+      <div class="list">[List here]</div>
+
+      <div class="controls">
+        <label>
+          <input type="radio" name="view" value="tree" checked />
+          <span>Tree</span>
+        </label>
+        <label>
+          <input type="radio" name="view" value="list" />
+          <span>List</span>
+        </label>
+
+        <button hidden>Clear</button>
+
+        <button hidden>Empty</button>
+      </div>
+    </div>
   </body>
 </html>
