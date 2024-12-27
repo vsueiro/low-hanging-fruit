@@ -12,6 +12,7 @@
         }
       }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js" defer></script>
     <script src="script/index.js" type="module"></script>
   </head>
   <body>
@@ -53,13 +54,11 @@
           --></details>
         </aside>
         <footer>
-          <small>
-            Your data is safe: information that you type here never leaves your device.
-          </small>
+          <small> Your data is safe: information that you type here never leaves your device. </small>
         </footer>
       </div>
       <div class="stage">
-        <div data-tab="view" class="tree">[Tree here]</div>
+        <div data-tab="view" class="tree" id="tree"></div>
         <div data-tab="view" class="list" hidden>[List here]</div>
 
         <div class="controls">

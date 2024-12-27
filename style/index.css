@@ -11,3 +11,8 @@
 @import url(imports/icons.css);
 @import url(imports/buttons.css);
 @import url(imports/tabs.css);
+
+canvas {
+  display: block;
+  width: 100%;
+}
