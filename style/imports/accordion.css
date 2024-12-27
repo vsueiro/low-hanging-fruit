@@ -1,10 +1,34 @@
 details {
   border-top: 1px solid;
-  max-width: 36ch;
   cursor: default;
+  max-width: 36ch;
+  overflow: hidden;
 }
 
 summary {
   cursor: pointer;
+  list-style-position: outside;
   user-select: none;
+}
+
+summary::marker {
+  color: transparent;
+}
+
+details * {
+  margin: 0;
+}
+
+details::details-content {
+  block-size: 0;
+  transition: block-size 0.4s, content-visibility 0.4s;
+  transition-behavior: allow-discrete;
+}
+
+details[open]::details-content {
+  block-size: auto;
+}
+
+details > p {
+  padding-block: 1rem;
 }
