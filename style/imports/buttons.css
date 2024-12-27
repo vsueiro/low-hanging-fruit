@@ -2,16 +2,46 @@ button {
   cursor: pointer;
 }
 
-.clear {
+.button {
+  align-items: center;
+  background: Lavender;
+  border: none;
+  border-radius: 999px;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  font-family: inherit;
+  font-size: inherit;
+  gap: 0.8rem;
+  justify-content: center;
+  line-height: 1.5;
+  padding: 1.2rem 1.8rem;
+  position: relative;
+  transition: opacity 0.2s, background-color 0.2s;
+}
+
+.button.clear {
+  background: color-mix(in srgb, hotpink 15%, ghostwhite 85%);
+  color: deeppink;
   position: absolute;
   right: 2.4rem;
   top: 0;
   translate: 0 -50%;
 }
 
-.empty {
+.button.clear:hover {
+  background: color-mix(in srgb, hotpink 30%, ghostwhite 70%);
+}
+
+.button.empty {
+  background: color-mix(in srgb, coral 15%, ghostwhite 85%);
+  bottom: 0;
+  color: tomato;
   position: absolute;
   right: 2.4rem;
-  bottom: 0;
   translate: 0 50%;
+}
+
+.button.empty:hover {
+  background: color-mix(in srgb, coral 30%, ghostwhite 70%);
 }
