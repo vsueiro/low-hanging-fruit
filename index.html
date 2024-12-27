@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Low-hanging-fruit</title>
-    <link rel="stylesheet" href="style/app.css" />
+    <link rel="stylesheet" href="style/index.css" />
     <script type="importmap">
       {
         "imports": {
@@ -12,50 +12,64 @@
         }
       }
     </script>
-    <script src="script/app.js" type="module"></script>
+    <script src="script/index.js" type="module"></script>
   </head>
   <body>
-    <header>
-      <a href="./">
-        <h1>L<span>o</span>w-hanging <strong>fruit</strong></h1>
-      </a>
-      <p>A playful impact × effort matrix for picking delicious tasks</p>
-    </header>
+    <div class="app">
+      <div class="sidebar">
+        <header>
+          <a href="./">
+            <h1>L<span>o</span>w-hanging <strong>fruit</strong></h1>
+          </a>
+          <p>A playful impact × effort matrix for picking delicious tasks</p>
+        </header>
+        <aside>
+          <details>
+            <summary>How to use</summary>
+            Lorem ipsum dolor sit amet.
+          </details>
 
-    <aside>
-      <details>
-        <summary>How to use</summary>
-        Lorem ipsum dolor sit amet.
-      </details>
+          <details>
+            <summary>What is this</summary>
+            Lorem ipsum dolor sit amet.
+          </details>
 
-      <details>
-        <summary>What is this</summary>
-        Lorem ipsum dolor sit amet.
-      </details>
+          <details>
+            <summary>Who made it</summary>
+            Lorem ipsum dolor sit amet.
 
-      <details>
-        <summary>Who made it</summary>
-        Lorem ipsum dolor sit amet.
-      </details>
-    </aside>
+            <!-- 
+            Created by
+            <a href="https://vsueiro.com/" target="_blank">Vinicius Sueiro</a>
+          --></details>
+        </aside>
+        <footer>
+          <small>
+            Your data is safe: information that you type here never leaves your
+            device.
+          </small>
+        </footer>
+      </div>
+      <div class="stage">
+        <div class="tree">[Tree here]</div>
+        <div class="list" hidden>[List here]</div>
 
-    <div class="stage">
-      <div class="tree">[Tree here]</div>
-      <div class="list">[List here]</div>
+        <div class="controls">
+          <div class="tabs">
+            <label>
+              <input type="radio" name="view" value="tree" checked />
+              <span>Tree</span>
+            </label>
+            <label>
+              <input type="radio" name="view" value="list" />
+              <span>List</span>
+            </label>
+          </div>
 
-      <div class="controls">
-        <label>
-          <input type="radio" name="view" value="tree" checked />
-          <span>Tree</span>
-        </label>
-        <label>
-          <input type="radio" name="view" value="list" />
-          <span>List</span>
-        </label>
+          <button class="clear">Clear</button>
 
-        <button hidden>Clear</button>
-
-        <button hidden>Empty</button>
+          <button class="empty">Empty</button>
+        </div>
       </div>
     </div>
   </body>

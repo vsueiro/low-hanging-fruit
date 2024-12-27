@@ -1,0 +1,23 @@
+.tabs {
+  background-color: lavender;
+  border-radius: 999px;
+  box-shadow: 0 0 0 0.3rem lavender;
+  display: grid;
+  gap: 0.3rem;
+  grid-template-columns: 1fr 1fr;
+  left: 2.4rem;
+  position: absolute;
+  top: 0;
+  translate: 0 -50%;
+  white-space: nowrap;
+}
+
+.tabs label {
+  border-radius: 999px;
+  cursor: pointer;
+  padding: 1.2rem 1.8rem;
+}
+
+.tabs label:has(input:checked) {
+  background: ghostwhite;
+}

@@ -1,0 +1,7 @@
+.app {
+  display: grid;
+  gap: 2.4rem;
+  grid-template-columns: 28.8rem 1fr;
+  margin: 0 auto;
+  max-width: 96rem;
+}
