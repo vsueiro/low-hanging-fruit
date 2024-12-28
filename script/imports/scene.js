@@ -3,15 +3,18 @@ import * as d3 from "d3";
 
 const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint, Events } = Matter;
 
-const width = 800;
-const height = 800;
-const wall = 800;
-const ground = 32;
-const radius = 18;
-const circles = [];
+window.data = [];
 
-const xScale = d3.scaleLinear().domain([160, 640]).range([0, 100]).clamp(true);
-const yScale = d3.scaleLinear().domain([96, 576]).range([0, 100]).clamp(true);
+const width = 1600;
+const height = 1600;
+const wall = 1600;
+const ground = 63;
+const radius = 36;
+const circles = [];
+// const deleted = [];
+
+const xScale = d3.scaleLinear().domain([320, 1280]).range([0, 100]).clamp(true);
+const yScale = d3.scaleLinear().domain([192, 1152]).range([0, 100]).clamp(true);
 
 export default function scene(selector) {
   const parent = document.querySelector(selector) || document.body;
@@ -116,6 +119,21 @@ export default function scene(selector) {
     }
   });
 
+  // Update loop
+  let lastTimestamp = 0;
+  let delay = 1000;
+  Events.on(engine, "beforeUpdate", (event) => {
+    const { timestamp } = event;
+
+    if (timestamp - lastTimestamp > delay) {
+      console.log("extracting data");
+      // Update data based on current circles
+      data = extractData(circles);
+
+      lastTimestamp = timestamp;
+    }
+  });
+
   // Drop dragged fruit when cursor leaves canvas
   render.canvas.addEventListener("mouseleave", () => {
     const event = new Event("mouseup");
@@ -130,7 +148,7 @@ function isInsideRectangle(body, rectangle) {
 }
 
 function addTreetop(world) {
-  const treetop = Bodies.rectangle(400, 336, 480, 480, {
+  const treetop = Bodies.rectangle(800, 672, 960, 960, {
     isStatic: true,
     render: {
       fillStyle: "powderblue",
@@ -174,7 +192,6 @@ function addWalls(world) {
   const walls = [left, right, top, bottom];
 
   World.add(world, walls);
-
   return walls;
 }
 
@@ -182,24 +199,36 @@ function addCircle(x, y, world) {
   const circle = Bodies.circle(x, y, radius, {
     restitution: 0.25,
     friction: 2,
-    render: {
-      sprite: {
-        xScale: 0.5,
-        yScale: 0.5,
-      },
+    collisionFilter: {
+      category: 0x0004,
+      mask: 0x0001,
     },
   });
 
   updateColor(circle);
 
-  circle.collisionFilter = {
-    category: 0x0004,
-    mask: 0x0001,
-  };
-
   circles.push(circle);
 
   World.add(world, circle);
+
+  return circle;
+}
+
+function extractData(circles) {
+  const data = [];
+
+  for (const circle of circles) {
+    const { id, angle } = circle;
+    const { x, y } = circle.position;
+    const { impact, effort } = getAxesValues(circle);
+    const text = "";
+
+    const entry = { id, angle, x, y, impact, effort, text };
+
+    data.push(entry);
+  }
+
+  return data;
 }
 
 // function getMouseCoordinates(mouse) {
@@ -213,7 +242,7 @@ function getAxesValues(body) {
   const impact = xScale(body.position.x);
   const effort = yScale(body.position.y);
 
-  return { x, y };
+  return { impact, effort };
 }
 
 function updateColor(circle) {
