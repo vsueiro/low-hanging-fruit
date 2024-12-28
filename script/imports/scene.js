@@ -1,17 +1,21 @@
 import Matter from "matter-js";
 import * as d3 from "d3";
 
-const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint, Events } = Matter;
+const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint, Query, Events } = Matter;
 
 window.data = [];
 
+const circles = [];
 const width = 1600;
 const height = 1600;
 const wall = 1600;
 const ground = 63;
 const radius = 36;
-const circles = [];
-// const deleted = [];
+const debounce = 1000;
+
+let lastTimestamp = 0;
+let draggedBody = false;
+let treetop = false;
 
 const xScale = d3.scaleLinear().domain([320, 1280]).range([0, 100]).clamp(true);
 const yScale = d3.scaleLinear().domain([192, 1152]).range([0, 100]).clamp(true);
@@ -19,7 +23,6 @@ const yScale = d3.scaleLinear().domain([192, 1152]).range([0, 100]).clamp(true);
 export default function scene(selector) {
   const parent = document.querySelector(selector) || document.body;
 
-  // Create engine and world
   const engine = Engine.create();
   const { world } = engine;
   engine.gravity.y = 2;
@@ -35,19 +38,16 @@ export default function scene(selector) {
     },
   };
 
-  // Create renderer
   const render = Render.create(options);
   Render.run(render);
 
   const runner = Runner.create();
   Runner.run(runner, engine);
 
-  const treetop = addTreetop(world);
+  treetop = addTreetop(world);
   addWalls(world);
 
   // Add mouse control
-  let draggedBody = false;
-
   const mouse = Mouse.create(render.canvas);
   const mouseConstraint = MouseConstraint.create(engine, {
     mouse,
@@ -80,7 +80,7 @@ export default function scene(selector) {
     });
   });
 
-  Events.on(mouseConstraint, "mousemove", () => {
+  Events.on(mouseConstraint, "mousemove", (event) => {
     if (draggedBody) {
       if (!isInsideRectangle(draggedBody, treetop)) return;
 
@@ -120,18 +120,16 @@ export default function scene(selector) {
   });
 
   // Update loop
-  let lastTimestamp = 0;
-  let delay = 1000;
   Events.on(engine, "beforeUpdate", (event) => {
     const { timestamp } = event;
 
-    if (timestamp - lastTimestamp > delay) {
-      console.log("extracting data");
-      // Update data based on current circles
+    if (timestamp - lastTimestamp > debounce) {
       data = extractData(circles);
-
       lastTimestamp = timestamp;
     }
+
+    const hover = Query.point(circles, mouse.position);
+    render.canvas.dataset.cursor = hover.length ? "grab" : "";
   });
 
   // Drop dragged fruit when cursor leaves canvas
@@ -196,6 +194,7 @@ function addWalls(world) {
 }
 
 function addCircle(x, y, world) {
+  console.log(x, y);
   const circle = Bodies.circle(x, y, radius, {
     restitution: 0.25,
     friction: 2,
@@ -210,6 +209,10 @@ function addCircle(x, y, world) {
   circles.push(circle);
 
   World.add(world, circle);
+
+  if (isInsideRectangle(circle, treetop)) {
+    circle.isStatic = true;
+  }
 
   return circle;
 }

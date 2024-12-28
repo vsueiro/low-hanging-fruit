@@ -16,6 +16,14 @@
   position: absolute;
 }
 
+.tree canvas[data-cursor="grab"] {
+  cursor: grab;
+}
+
+.tree canvas[data-cursor="grab"]:active {
+  cursor: grabbing;
+}
+
 .list {
   background: coral;
   border-radius: 1.6rem;
