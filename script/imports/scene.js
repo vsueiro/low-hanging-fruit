@@ -5,7 +5,7 @@ const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint, Que
 
 window.data = [];
 
-const circles = [];
+const fruits = [];
 const width = 1600;
 const height = 1600;
 const wall = 1600;
@@ -14,7 +14,7 @@ const radius = 36;
 const debounce = 1000;
 
 let lastTimestamp = 0;
-let draggedBody = false;
+let draggedFruit = false;
 let treetop = false;
 
 const xScale = d3.scaleLinear().domain([320, 1280]).range([0, 100]).clamp(true);
@@ -66,40 +66,40 @@ export default function scene(selector) {
     const { body } = event;
 
     if (!body) return;
-    if (!circles.includes(body)) return;
+    if (!fruits.includes(body)) return;
 
-    draggedBody = body;
+    draggedFruit = body;
 
     // Handle overlapping bodies firing multiple startdrag events
     requestAnimationFrame(() => {
-      if (mouseConstraint.body !== draggedBody) return;
-      if (!circles.includes(draggedBody)) return;
+      if (mouseConstraint.body !== draggedFruit) return;
+      if (!fruits.includes(draggedFruit)) return;
 
       // If a frozen circle is clicked, make it dynamic for dragging
-      draggedBody.isStatic = false;
+      draggedFruit.isStatic = false;
     });
   });
 
   Events.on(mouseConstraint, "mousemove", (event) => {
-    if (draggedBody) {
-      if (!isInsideRectangle(draggedBody, treetop)) return;
+    if (draggedFruit) {
+      if (!isInsideRectangle(draggedFruit, treetop)) return;
 
-      updateColor(draggedBody);
-      rotateUp(draggedBody);
+      updateColor(draggedFruit);
+      rotateUp(draggedFruit);
 
-      // console.log(getBodyCoordinates(draggedBody));
+      // console.log(getBodyCoordinates(draggedFruit));
     } else {
       // Move flower?
     }
   });
 
   Events.on(mouseConstraint, "enddrag", (event) => {
-    draggedBody = false;
+    draggedFruit = false;
 
     const { body } = event;
 
     if (!body) return;
-    if (!circles.includes(body)) return;
+    if (!fruits.includes(body)) return;
 
     if (isInsideRectangle(body, treetop)) {
       rotateUp(body);
@@ -110,12 +110,12 @@ export default function scene(selector) {
   });
 
   Events.on(mouseConstraint, "mousedown", (event) => {
-    if (draggedBody) return;
+    if (draggedFruit) return;
 
     const { x, y } = event.mouse.position;
 
     if (isInsideRectangle(mouse, treetop)) {
-      addCircle(x, y, world);
+      addFruit(x, y, world);
     }
   });
 
@@ -124,11 +124,11 @@ export default function scene(selector) {
     const { timestamp } = event;
 
     if (timestamp - lastTimestamp > debounce) {
-      data = extractData(circles);
+      data = extractData(fruits);
       lastTimestamp = timestamp;
     }
 
-    const hover = Query.point(circles, mouse.position);
+    const hover = Query.point(fruits, mouse.position);
     render.canvas.dataset.cursor = hover.length ? "grab" : "";
   });
 
@@ -193,9 +193,8 @@ function addWalls(world) {
   return walls;
 }
 
-function addCircle(x, y, world) {
-  console.log(x, y);
-  const circle = Bodies.circle(x, y, radius, {
+function addFruit(x, y, world) {
+  const fruit = Bodies.circle(x, y, radius, {
     restitution: 0.25,
     friction: 2,
     collisionFilter: {
@@ -204,26 +203,26 @@ function addCircle(x, y, world) {
     },
   });
 
-  updateColor(circle);
+  updateColor(fruit);
 
-  circles.push(circle);
+  fruits.push(fruit);
 
-  World.add(world, circle);
+  World.add(world, fruit);
 
-  if (isInsideRectangle(circle, treetop)) {
-    circle.isStatic = true;
+  if (isInsideRectangle(fruit, treetop)) {
+    fruit.isStatic = true;
   }
 
-  return circle;
+  return fruit;
 }
 
-function extractData(circles) {
+function extractData(fruits) {
   const data = [];
 
-  for (const circle of circles) {
-    const { id, angle } = circle;
-    const { x, y } = circle.position;
-    const { impact, effort } = getAxesValues(circle);
+  for (const fruit of fruits) {
+    const { id, angle } = fruit;
+    const { x, y } = fruit.position;
+    const { impact, effort } = getAxesValues(fruit);
     const text = "";
 
     const entry = { id, angle, x, y, impact, effort, text };
@@ -248,12 +247,12 @@ function getAxesValues(body) {
   return { impact, effort };
 }
 
-function updateColor(circle) {
-  const ripeness = circle.position.x < width / 2 ? 0 : 100;
-  circle.render.sprite.texture = `./media/sprites/fruit-ripeness-${ripeness}.png`;
+function updateColor(fruit) {
+  const ripeness = fruit.position.x < width / 2 ? 0 : 100;
+  fruit.render.sprite.texture = `./media/sprites/fruit-ripeness-${ripeness}.png`;
 }
 
-function rotateUp(circle) {
-  Body.setAngle(circle, 0);
-  Body.setAngularVelocity(circle, 0);
+function rotateUp(fruit) {
+  Body.setAngle(fruit, 0);
+  Body.setAngularVelocity(fruit, 0);
 }
