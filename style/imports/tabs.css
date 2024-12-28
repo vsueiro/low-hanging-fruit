@@ -23,6 +23,7 @@
   padding: 1.2rem 1.8rem;
   position: relative;
   transition: opacity 0.2s;
+  user-select: none;
 }
 
 .tabs label:has(input:checked),
