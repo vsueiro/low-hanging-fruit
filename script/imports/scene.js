@@ -17,6 +17,12 @@ let lastTimestamp = 0;
 let draggedFruit = false;
 let treetop = false;
 
+const collision = {
+  default: 0x0001,
+  treetop: 0x0002,
+  fruits: 0x0004,
+};
+
 const clearButton = document.querySelector(".clear");
 const emptyButton = document.querySelector(".empty");
 
@@ -88,10 +94,13 @@ export default function scene(selector) {
 
   Events.on(mouseConstraint, "mousemove", () => {
     if (draggedFruit) {
-      if (!isInsideRectangle(draggedFruit, treetop)) return;
-
-      updateColor(draggedFruit);
-      rotateUp(draggedFruit);
+      if (isInsideRectangle(draggedFruit, treetop)) {
+        updateCollision(draggedFruit, collision.fruits);
+        updateColor(draggedFruit);
+        rotateUp(draggedFruit);
+      } else {
+        updateCollision(draggedFruit, collision.default);
+      }
     } else {
       // Move flower?
     }
@@ -171,8 +180,8 @@ function addTreetop(world) {
       fillStyle: "powderblue",
     },
     collisionFilter: {
-      category: 0x0002,
-      mask: 0x0004,
+      category: collision.treetop,
+      mask: collision.fruits,
     },
   });
 
@@ -225,8 +234,8 @@ function addFruit(world, x, y, angle = 0, ripeness = undefined, location = "matr
     restitution: 0.25,
     friction: 2,
     collisionFilter: {
-      category: 0x0004,
-      mask: 0x0001,
+      category: collision.default,
+      mask: collision.default,
     },
   });
 
@@ -235,12 +244,12 @@ function addFruit(world, x, y, angle = 0, ripeness = undefined, location = "matr
   updateColor(fruit, ripeness);
 
   fruits.push(fruit);
-
   Composite.add(world, fruit);
 
   if (location === "matrix") {
     rotateUp(fruit);
     fruit.isStatic = true;
+    updateCollision(fruit, collision.fruits);
   }
 
   return fruit;
@@ -299,6 +308,10 @@ function updateColor(fruit, ripeness) {
 
   fruit.userData.ripeness = ripeness;
   fruit.render.sprite.texture = `./media/sprites/fruit-ripeness-${ripeness}.png`;
+}
+
+function updateCollision(fruit, category) {
+  fruit.collisionFilter.category = category;
 }
 
 function rotateUp(fruit) {
