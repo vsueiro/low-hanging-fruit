@@ -61,9 +61,6 @@ export default function scene(selector) {
   Events.on(engine, "beforeUpdate", () => {
     for (const circle of circles) {
       if (frozenCircles.has(circle)) {
-        // Keep frozen circles stationary
-        // Matter.Body.setVelocity(circle, { x: 0, y: 0 });
-        // Matter.Body.setPosition(circle, circle.position);
         circle.isStatic = true; // Ensure frozen circles are fully static
       } else {
         circle.isStatic = false; // Allow unfrozen circles to behave normally
@@ -74,24 +71,27 @@ export default function scene(selector) {
   // Mouse events
   Events.on(mouseConstraint, "startdrag", (event) => {
     const { body } = event;
-    if (body && circles.includes(body)) {
-      draggedBody = body;
-      // If a frozen circle is clicked, make it dynamic for dragging
-      if (frozenCircles.has(body)) {
-        body.isStatic = false;
-        frozenCircles.delete(body);
+
+    if (!body) return;
+    if (!circles.includes(body)) return;
+
+    draggedBody = body;
+
+    // Handle overlapping bodies firing multiple startdrag events
+    requestAnimationFrame(() => {
+      if (mouseConstraint.body === draggedBody) {
+        // If a frozen circle is clicked, make it dynamic for dragging
+        if (frozenCircles.has(draggedBody)) {
+          draggedBody.isStatic = false;
+          frozenCircles.delete(draggedBody);
+        }
       }
-    }
+    });
   });
 
-  Events.on(mouseConstraint, "mousemove", (event) => {
-    if (!draggedBody) {
-      return;
-    }
-
-    if (!isInsideSquare(draggedBody, treetop)) {
-      return;
-    }
+  Events.on(mouseConstraint, "mousemove", () => {
+    if (!draggedBody) return;
+    if (!isInsideSquare(draggedBody, treetop)) return;
 
     // if (rotatedBody) {
     //   return;
@@ -112,8 +112,6 @@ export default function scene(selector) {
       if (isInsideSquare(body, treetop)) {
         rotateUp(body);
         frozenCircles.add(body);
-        // Matter.Body.setVelocity(body, { x: 0, y: 0 }); // Stop movement immediately
-        // Matter.Body.setPosition(body, body.position); // Fix position
       } else {
         frozenCircles.delete(body);
       }
