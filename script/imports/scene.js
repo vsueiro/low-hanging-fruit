@@ -1,4 +1,5 @@
 import Matter from "matter-js";
+import * as d3 from "d3";
 
 const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint, Events } = Matter;
 
@@ -9,6 +10,9 @@ const wall = 800;
 const ground = 32;
 const radius = 18;
 const frozenCircles = new Set();
+
+const xScale = d3.scaleLinear().domain([160, 640]).range([0, 100]).clamp(true);
+const yScale = d3.scaleLinear().domain([96, 576]).range([0, 100]).clamp(true);
 
 export default function scene(selector) {
   const parent = document.querySelector(selector) || document.body;
@@ -90,15 +94,19 @@ export default function scene(selector) {
   });
 
   Events.on(mouseConstraint, "mousemove", () => {
-    if (!draggedBody) return;
-    if (!isInsideSquare(draggedBody, treetop)) return;
+    if (draggedBody) {
+      if (!isInsideSquare(draggedBody, treetop)) return;
+
+      updateColor(draggedBody);
+      rotateUp(draggedBody);
+
+      console.log(getCoordinatePercentages(draggedBody));
+    } else {
+    }
 
     // if (rotatedBody) {
     //   return;
     // }
-
-    updateColor(draggedBody);
-    rotateUp(draggedBody);
 
     // rotatedBody = true;
   });
@@ -213,6 +221,13 @@ function addCircles(world) {
   });
 
   World.add(world, circles);
+}
+
+function getCoordinatePercentages(circle) {
+  const x = xScale(circle.position.x);
+  const y = yScale(circle.position.y);
+
+  return { x, y };
 }
 
 function updateColor(circle) {
