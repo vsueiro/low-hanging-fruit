@@ -118,6 +118,12 @@ export default function scene(selector) {
       }
     }
   });
+
+  // Drop dragged fruit when cursor leaves canvas
+  render.canvas.addEventListener("mouseleave", () => {
+    const event = new Event("mouseup");
+    mouseConstraint.mouse.element.dispatchEvent(event);
+  });
 }
 
 function isInsideSquare(circle, square) {
@@ -222,4 +228,5 @@ function rotateUp(circle) {
   // const angle = Matter.Common.random(minAngle, maxAngle);
   const angle = 0;
   Body.setAngle(circle, angle);
+  Body.setAngularVelocity(circle, 0);
 }
