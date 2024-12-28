@@ -1,11 +1,11 @@
 import Matter from "matter-js";
 import * as d3 from "d3";
 
-const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint, Query, Events } = Matter;
+const { Engine, Render, Runner, Composite, Bodies, Body, Mouse, MouseConstraint, Query, Events } = Matter;
 
-window.data = [];
+window.fruits = [];
+window.data = recoverData();
 
-const fruits = [];
 const width = 1600;
 const height = 1600;
 const wall = 1600;
@@ -16,6 +16,9 @@ const debounce = 1000;
 let lastTimestamp = 0;
 let draggedFruit = false;
 let treetop = false;
+
+const clearButton = document.querySelector(".clear");
+const emptyButton = document.querySelector(".empty");
 
 const xScale = d3.scaleLinear().domain([320, 1280]).range([0, 100]).clamp(true);
 const yScale = d3.scaleLinear().domain([192, 1152]).range([0, 100]).clamp(true);
@@ -44,8 +47,11 @@ export default function scene(selector) {
   const runner = Runner.create();
   Runner.run(runner, engine);
 
+  data = recoverData();
+
   treetop = addTreetop(world);
   addWalls(world);
+  addFruits(world);
 
   // Add mouse control
   const mouse = Mouse.create(render.canvas);
@@ -58,7 +64,7 @@ export default function scene(selector) {
       },
     },
   });
-  World.add(world, mouseConstraint);
+  Composite.add(world, mouseConstraint);
   render.mouse = mouse;
 
   // Mouse events
@@ -80,14 +86,12 @@ export default function scene(selector) {
     });
   });
 
-  Events.on(mouseConstraint, "mousemove", (event) => {
+  Events.on(mouseConstraint, "mousemove", () => {
     if (draggedFruit) {
       if (!isInsideRectangle(draggedFruit, treetop)) return;
 
       updateColor(draggedFruit);
       rotateUp(draggedFruit);
-
-      // console.log(getBodyCoordinates(draggedFruit));
     } else {
       // Move flower?
     }
@@ -103,10 +107,14 @@ export default function scene(selector) {
 
     if (isInsideRectangle(body, treetop)) {
       rotateUp(body);
+      body.userData.location = "matrix";
       body.isStatic = true;
     } else {
+      body.userData.location = "floor";
       body.isStatic = false;
     }
+
+    console.log(body);
   });
 
   Events.on(mouseConstraint, "mousedown", (event) => {
@@ -115,7 +123,7 @@ export default function scene(selector) {
     const { x, y } = event.mouse.position;
 
     if (isInsideRectangle(mouse, treetop)) {
-      addFruit(x, y, world);
+      addFruit(world, x, y);
     }
   });
 
@@ -125,6 +133,8 @@ export default function scene(selector) {
 
     if (timestamp - lastTimestamp > debounce) {
       data = extractData(fruits);
+      storeData(data);
+
       lastTimestamp = timestamp;
     }
 
@@ -136,6 +146,15 @@ export default function scene(selector) {
   render.canvas.addEventListener("mouseleave", () => {
     const event = new Event("mouseup");
     mouseConstraint.mouse.element.dispatchEvent(event);
+  });
+
+  clearButton.addEventListener("click", () => {
+    clearFruits(world);
+  });
+
+  window.addEventListener("beforeunload", () => {
+    data = extractData(fruits);
+    storeData(data);
   });
 }
 
@@ -157,7 +176,7 @@ function addTreetop(world) {
     },
   });
 
-  World.add(world, treetop);
+  Composite.add(world, treetop);
 
   return treetop;
 }
@@ -189,12 +208,20 @@ function addWalls(world) {
 
   const walls = [left, right, top, bottom];
 
-  World.add(world, walls);
+  Composite.add(world, walls);
   return walls;
 }
 
-function addFruit(x, y, world) {
+function addFruits(world) {
+  for (const entry of data) {
+    const { x, y, angle, ripeness, location } = entry;
+    addFruit(world, x, y, angle, ripeness, location);
+  }
+}
+
+function addFruit(world, x, y, angle = 0, ripeness = undefined, location = "matrix") {
   const fruit = Bodies.circle(x, y, radius, {
+    angle: angle,
     restitution: 0.25,
     friction: 2,
     collisionFilter: {
@@ -203,13 +230,16 @@ function addFruit(x, y, world) {
     },
   });
 
-  updateColor(fruit);
+  fruit.userData = { location, ripeness };
+
+  updateColor(fruit, ripeness);
 
   fruits.push(fruit);
 
-  World.add(world, fruit);
+  Composite.add(world, fruit);
 
-  if (isInsideRectangle(fruit, treetop)) {
+  if (location === "matrix") {
+    rotateUp(fruit);
     fruit.isStatic = true;
   }
 
@@ -222,10 +252,11 @@ function extractData(fruits) {
   for (const fruit of fruits) {
     const { id, angle } = fruit;
     const { x, y } = fruit.position;
+    const { location, ripeness } = fruit.userData;
     const { impact, effort } = getAxesValues(fruit);
     const text = "";
 
-    const entry = { id, angle, x, y, impact, effort, text };
+    const entry = { id, angle, x, y, impact, effort, location, ripeness, text };
 
     data.push(entry);
   }
@@ -233,22 +264,40 @@ function extractData(fruits) {
   return data;
 }
 
-// function getMouseCoordinates(mouse) {
-//   const x = xScale(mouse.position.x);
-//   const y = yScale(mouse.position.y);
+function storeData() {
+  const json = JSON.stringify(data);
+  localStorage.setItem("data", json);
+}
 
-//   return { x, y };
-// }
+function recoverData() {
+  const json = localStorage.getItem("data");
+  if (json) return JSON.parse(json);
 
-function getAxesValues(body) {
-  const impact = xScale(body.position.x);
-  const effort = yScale(body.position.y);
+  return [];
+}
+
+function clearFruits(world) {
+  for (const fruit of fruits) {
+    Composite.remove(world, fruit);
+  }
+
+  fruits = [];
+}
+
+function getAxesValues(fruit) {
+  const impact = xScale(fruit.position.x);
+  const effort = yScale(fruit.position.y);
 
   return { impact, effort };
 }
 
-function updateColor(fruit) {
-  const ripeness = fruit.position.x < width / 2 ? 0 : 100;
+function updateColor(fruit, ripeness) {
+  if (ripeness === undefined) {
+    const { impact } = getAxesValues(fruit);
+    ripeness = impact < 50 ? 0 : 100;
+  }
+
+  fruit.userData.ripeness = ripeness;
   fruit.render.sprite.texture = `./media/sprites/fruit-ripeness-${ripeness}.png`;
 }
 
