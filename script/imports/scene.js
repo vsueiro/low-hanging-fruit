@@ -5,10 +5,10 @@ const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint, Eve
 
 const width = 800;
 const height = 800;
-const circles = [];
 const wall = 800;
 const ground = 32;
 const radius = 18;
+const circles = [];
 const frozenCircles = new Set();
 
 const xScale = d3.scaleLinear().domain([160, 640]).range([0, 100]).clamp(true);
@@ -95,12 +95,12 @@ export default function scene(selector) {
 
   Events.on(mouseConstraint, "mousemove", () => {
     if (draggedBody) {
-      if (!isInsideSquare(draggedBody, treetop)) return;
+      if (!isInsideRectangle(draggedBody, treetop)) return;
 
       updateColor(draggedBody);
       rotateUp(draggedBody);
 
-      console.log(getCoordinatePercentages(draggedBody));
+      // console.log(getBodyCoordinates(draggedBody));
     } else {
     }
 
@@ -117,12 +117,22 @@ export default function scene(selector) {
 
     const { body } = event;
     if (body && circles.includes(body)) {
-      if (isInsideSquare(body, treetop)) {
+      if (isInsideRectangle(body, treetop)) {
         rotateUp(body);
         frozenCircles.add(body);
       } else {
         frozenCircles.delete(body);
       }
+    }
+  });
+
+  Events.on(mouseConstraint, "mousedown", (event) => {
+    if (draggedBody) return;
+
+    const { x, y } = event.mouse.position;
+
+    if (isInsideRectangle(mouse, treetop)) {
+      addCircle(x, y, world);
     }
   });
 
@@ -133,10 +143,10 @@ export default function scene(selector) {
   });
 }
 
-function isInsideSquare(circle, square) {
-  const { x, y } = circle.position;
-  const squareBounds = square.bounds;
-  return x > squareBounds.min.x && x < squareBounds.max.x && y > squareBounds.min.y && y < squareBounds.max.y;
+function isInsideRectangle(body, rectangle) {
+  const { x, y } = body.position;
+  const { bounds } = rectangle;
+  return x > bounds.min.x && x < bounds.max.x && y > bounds.min.y && y < bounds.max.y;
 }
 
 function addTreetop(world) {
@@ -188,8 +198,32 @@ function addWalls(world) {
   return walls;
 }
 
+function addCircle(x, y, world) {
+  const circle = Bodies.circle(x, y, radius, {
+    restitution: 0.25,
+    friction: 2,
+    render: {
+      sprite: {
+        xScale: 0.5,
+        yScale: 0.5,
+      },
+    },
+  });
+
+  updateColor(circle);
+
+  circle.collisionFilter = {
+    category: 0x0004,
+    mask: 0x0001,
+  };
+
+  circles.push(circle);
+
+  World.add(world, circle);
+}
+
 function addCircles(world) {
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 0; i++) {
     const x = Math.random() * width;
     const y = Math.random() * height;
 
@@ -223,9 +257,16 @@ function addCircles(world) {
   World.add(world, circles);
 }
 
-function getCoordinatePercentages(circle) {
-  const x = xScale(circle.position.x);
-  const y = yScale(circle.position.y);
+function getMouseCoordinates(mouse) {
+  const x = xScale(mouse.position.x);
+  const y = yScale(mouse.position.y);
+
+  return { x, y };
+}
+
+function getBodyCoordinates(body) {
+  const x = xScale(body.position.x);
+  const y = yScale(body.position.y);
 
   return { x, y };
 }
