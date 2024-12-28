@@ -154,11 +154,18 @@ function addCircles(world) {
     const x = Math.random() * width;
     const y = Math.random() * height;
 
+    const ripeness = Math.random() < 0.5 ? 0 : 100;
+
     const circle = Bodies.circle(x, y, radius, {
       restitution: 0.25,
       friction: 2,
       render: {
-        fillStyle: "tomato",
+        sprite: {
+          xScale: 0.5,
+          yScale: 0.5,
+          texture: `./media/sprites/fruit-ripeness-${ripeness}.png`,
+        },
+        // fillStyle: "tomato",
       },
     });
 
