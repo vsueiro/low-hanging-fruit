@@ -1,6 +1,6 @@
 import Matter from "matter-js";
 
-const { Engine, Render, Runner, World, Bodies, Mouse, MouseConstraint, Events } = Matter;
+const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint, Events } = Matter;
 
 const width = 800;
 const height = 800;
@@ -41,6 +41,9 @@ export default function scene(selector) {
   addCircles(world);
 
   // Add mouse control
+  let draggedBody = false;
+  // let rotatedBody = false;
+
   const mouse = Mouse.create(render.canvas);
   const mouseConstraint = MouseConstraint.create(engine, {
     mouse,
@@ -72,6 +75,7 @@ export default function scene(selector) {
   Events.on(mouseConstraint, "startdrag", (event) => {
     const { body } = event;
     if (body && circles.includes(body)) {
+      draggedBody = body;
       // If a frozen circle is clicked, make it dynamic for dragging
       if (frozenCircles.has(body)) {
         body.isStatic = false;
@@ -80,10 +84,32 @@ export default function scene(selector) {
     }
   });
 
+  Events.on(mouseConstraint, "mousemove", (event) => {
+    if (!draggedBody) {
+      return;
+    }
+
+    if (!isInsideSquare(draggedBody, treetop)) {
+      return;
+    }
+
+    // if (rotatedBody) {
+    //   return;
+    // }
+
+    rotateUp(draggedBody);
+
+    // rotatedBody = true;
+  });
+
   Events.on(mouseConstraint, "enddrag", (event) => {
+    draggedBody = false;
+    // rotatedBody = false;
+
     const { body } = event;
     if (body && circles.includes(body)) {
       if (isInsideSquare(body, treetop)) {
+        rotateUp(body);
         frozenCircles.add(body);
         // Matter.Body.setVelocity(body, { x: 0, y: 0 }); // Stop movement immediately
         // Matter.Body.setPosition(body, body.position); // Fix position
@@ -181,4 +207,19 @@ function addCircles(world) {
   });
 
   World.add(world, circles);
+}
+
+function rotateUp(circle) {
+  // const minAngle = (-30 * Math.PI) / 180;
+  // const maxAngle = (30 * Math.PI) / 180;
+  // const currentAngle = circle.angle % Math.PI;
+  // const isInRange = currentAngle > minAngle && currentAngle < maxAngle;
+
+  // if (isInRange) {
+  //   return;
+  // }
+
+  // const angle = Matter.Common.random(minAngle, maxAngle);
+  const angle = 0;
+  Body.setAngle(circle, angle);
 }
