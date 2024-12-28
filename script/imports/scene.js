@@ -9,7 +9,6 @@ const wall = 800;
 const ground = 32;
 const radius = 18;
 const circles = [];
-const frozenCircles = new Set();
 
 const xScale = d3.scaleLinear().domain([160, 640]).range([0, 100]).clamp(true);
 const yScale = d3.scaleLinear().domain([96, 576]).range([0, 100]).clamp(true);
@@ -42,11 +41,9 @@ export default function scene(selector) {
 
   const treetop = addTreetop(world);
   addWalls(world);
-  addCircles(world);
 
   // Add mouse control
   let draggedBody = false;
-  // let rotatedBody = false;
 
   const mouse = Mouse.create(render.canvas);
   const mouseConstraint = MouseConstraint.create(engine, {
@@ -61,17 +58,6 @@ export default function scene(selector) {
   World.add(world, mouseConstraint);
   render.mouse = mouse;
 
-  // Update loop
-  Events.on(engine, "beforeUpdate", () => {
-    for (const circle of circles) {
-      if (frozenCircles.has(circle)) {
-        circle.isStatic = true; // Ensure frozen circles are fully static
-      } else {
-        circle.isStatic = false; // Allow unfrozen circles to behave normally
-      }
-    }
-  });
-
   // Mouse events
   Events.on(mouseConstraint, "startdrag", (event) => {
     const { body } = event;
@@ -83,13 +69,11 @@ export default function scene(selector) {
 
     // Handle overlapping bodies firing multiple startdrag events
     requestAnimationFrame(() => {
-      if (mouseConstraint.body === draggedBody) {
-        // If a frozen circle is clicked, make it dynamic for dragging
-        if (frozenCircles.has(draggedBody)) {
-          draggedBody.isStatic = false;
-          frozenCircles.delete(draggedBody);
-        }
-      }
+      if (mouseConstraint.body !== draggedBody) return;
+      if (!circles.includes(draggedBody)) return;
+
+      // If a frozen circle is clicked, make it dynamic for dragging
+      draggedBody.isStatic = false;
     });
   });
 
@@ -102,27 +86,23 @@ export default function scene(selector) {
 
       // console.log(getBodyCoordinates(draggedBody));
     } else {
+      // Move flower?
     }
-
-    // if (rotatedBody) {
-    //   return;
-    // }
-
-    // rotatedBody = true;
   });
 
   Events.on(mouseConstraint, "enddrag", (event) => {
     draggedBody = false;
-    // rotatedBody = false;
 
     const { body } = event;
-    if (body && circles.includes(body)) {
-      if (isInsideRectangle(body, treetop)) {
-        rotateUp(body);
-        frozenCircles.add(body);
-      } else {
-        frozenCircles.delete(body);
-      }
+
+    if (!body) return;
+    if (!circles.includes(body)) return;
+
+    if (isInsideRectangle(body, treetop)) {
+      rotateUp(body);
+      body.isStatic = true;
+    } else {
+      body.isStatic = false;
     }
   });
 
@@ -222,51 +202,16 @@ function addCircle(x, y, world) {
   World.add(world, circle);
 }
 
-function addCircles(world) {
-  for (let i = 0; i < 0; i++) {
-    const x = Math.random() * width;
-    const y = Math.random() * height;
+// function getMouseCoordinates(mouse) {
+//   const x = xScale(mouse.position.x);
+//   const y = yScale(mouse.position.y);
 
-    // const ripeness = Math.random() < 0.5 ? 0 : 100;
+//   return { x, y };
+// }
 
-    const circle = Bodies.circle(x, y, radius, {
-      restitution: 0.25,
-      friction: 2,
-      render: {
-        sprite: {
-          xScale: 0.5,
-          yScale: 0.5,
-          // texture: `./media/sprites/fruit-ripeness-${ripeness}.png`,
-        },
-      },
-    });
-
-    updateColor(circle);
-
-    circles.push(circle);
-  }
-
-  // Adjust circles to avoid collision with the square
-  circles.forEach((circle) => {
-    circle.collisionFilter = {
-      category: 0x0004,
-      mask: 0x0001,
-    };
-  });
-
-  World.add(world, circles);
-}
-
-function getMouseCoordinates(mouse) {
-  const x = xScale(mouse.position.x);
-  const y = yScale(mouse.position.y);
-
-  return { x, y };
-}
-
-function getBodyCoordinates(body) {
-  const x = xScale(body.position.x);
-  const y = yScale(body.position.y);
+function getAxesValues(body) {
+  const impact = xScale(body.position.x);
+  const effort = yScale(body.position.y);
 
   return { x, y };
 }
@@ -277,17 +222,6 @@ function updateColor(circle) {
 }
 
 function rotateUp(circle) {
-  // const minAngle = (-30 * Math.PI) / 180;
-  // const maxAngle = (30 * Math.PI) / 180;
-  // const currentAngle = circle.angle % Math.PI;
-  // const isInRange = currentAngle > minAngle && currentAngle < maxAngle;
-
-  // if (isInRange) {
-  //   return;
-  // }
-
-  // const angle = Matter.Common.random(minAngle, maxAngle);
-  // const angle = 0;
   Body.setAngle(circle, 0);
   Body.setAngularVelocity(circle, 0);
 }
