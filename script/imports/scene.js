@@ -97,6 +97,7 @@ export default function scene(selector) {
     //   return;
     // }
 
+    updateColor(draggedBody);
     rotateUp(draggedBody);
 
     // rotatedBody = true;
@@ -186,7 +187,7 @@ function addCircles(world) {
     const x = Math.random() * width;
     const y = Math.random() * height;
 
-    const ripeness = Math.random() < 0.5 ? 0 : 100;
+    // const ripeness = Math.random() < 0.5 ? 0 : 100;
 
     const circle = Bodies.circle(x, y, radius, {
       restitution: 0.25,
@@ -195,11 +196,12 @@ function addCircles(world) {
         sprite: {
           xScale: 0.5,
           yScale: 0.5,
-          texture: `./media/sprites/fruit-ripeness-${ripeness}.png`,
+          // texture: `./media/sprites/fruit-ripeness-${ripeness}.png`,
         },
-        // fillStyle: "tomato",
       },
     });
+
+    updateColor(circle);
 
     circles.push(circle);
   }
@@ -215,6 +217,11 @@ function addCircles(world) {
   World.add(world, circles);
 }
 
+function updateColor(circle) {
+  const ripeness = circle.position.x < width / 2 ? 0 : 100;
+  circle.render.sprite.texture = `./media/sprites/fruit-ripeness-${ripeness}.png`;
+}
+
 function rotateUp(circle) {
   // const minAngle = (-30 * Math.PI) / 180;
   // const maxAngle = (30 * Math.PI) / 180;
@@ -226,7 +233,7 @@ function rotateUp(circle) {
   // }
 
   // const angle = Matter.Common.random(minAngle, maxAngle);
-  const angle = 0;
-  Body.setAngle(circle, angle);
+  // const angle = 0;
+  Body.setAngle(circle, 0);
   Body.setAngularVelocity(circle, 0);
 }
