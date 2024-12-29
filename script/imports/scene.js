@@ -15,7 +15,9 @@ const debounce = 1000;
 
 let lastTimestamp = 0;
 let draggedFruit = false;
+window.hoveredFruit = false;
 let treetop = false;
+// let hoverTimeout = false;
 
 const collision = {
   default: 0x0001,
@@ -242,6 +244,11 @@ function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, locat
 
   const field = addField(text);
 
+  // field.addEventListener("pointerover", () => {
+  //   console.log(fruit);
+  //   window.hoveredFruit = fruit;
+  // });
+
   fruit.userData = { location, ripeness, field };
 
   updateColor(fruit, ripeness);
@@ -261,8 +268,16 @@ function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, locat
 }
 
 function addField(text = "") {
-  const field = document.createElement("textarea");
-  field.value = text;
+  const field = document.createElement("div");
+  field.classList.add("field");
+
+  const textarea = document.createElement("textarea");
+  textarea.rows = 2;
+  textarea.cols = 16;
+  textarea.placeholder = "Task description";
+  textarea.value = text;
+
+  field.append(textarea);
   element.append(field);
 
   return field;
@@ -276,7 +291,7 @@ function extractData(fruits) {
     const { x, y } = fruit.position;
     const { location, ripeness, field } = fruit.userData;
     const { impact, effort } = getAxesValues(fruit);
-    const text = field.value;
+    const text = field.querySelector("textarea").value;
 
     const entry = { id, angle, text, x, y, impact, effort, location, ripeness };
 
@@ -343,11 +358,32 @@ function updateField(fruit) {
 
   field.style.top = top;
   field.style.left = left;
+
+  if (fruit === hoveredFruit) {
+    field.classList.add("visible");
+
+    if (fruit === draggedFruit) {
+      field.classList.remove("interactive");
+    } else {
+      field.classList.add("interactive");
+    }
+  } else {
+    // hoverTimeout = setTimeout(() => {
+    field.classList.remove("visible");
+    // }, 250);
+  }
 }
 
 function updateCursor(render, mouse) {
   const hover = Query.point(fruits, mouse.position);
-  render.canvas.dataset.cursor = hover.length ? "grab" : "";
+
+  if (hover.length === 0) {
+    render.canvas.dataset.cursor = "";
+    hoveredFruit = false;
+  } else {
+    render.canvas.dataset.cursor = "grab";
+    hoveredFruit = hover[0];
+  }
 }
 
 function rotateUp(fruit) {

@@ -1,3 +1,7 @@
+:root {
+  --easeOutBack: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 .stage {
   aspect-ratio: 1;
   border-radius: 1.6rem;
@@ -24,12 +28,65 @@
   cursor: grabbing;
 }
 
-.tree textarea {
-  display: block;
-  margin-top: -4.5%;
+.tree .field {
+  border-radius: 0.8rem 0.8rem 25% 25%;
+  margin-top: calc(-2.25% + 1px);
+  opacity: 0;
+  padding-bottom: 2.25%;
+  pointer-events: none;
   position: absolute;
-  resize: none;
+  scale: 0;
+  transform-origin: center bottom;
+  transition: scale 0.2s var(--easeOutBack), opacity 0.2s var(--easeOutBack);
+  transition-delay: 0.1s;
   translate: -50% -100%;
+}
+
+.tree .field::after {
+  aspect-ratio: 1;
+  background: rebeccapurple;
+  border-radius: 0 0 0.4rem 0;
+  clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+  content: "";
+  display: block;
+  left: 50%;
+  margin-top: -0.5px;
+  pointer-events: none;
+  position: absolute;
+  rotate: 45deg;
+  translate: -50% -50%;
+  width: 1rem;
+}
+
+.tree textarea::placeholder {
+  color: plum;
+}
+
+.tree textarea {
+  background: rebeccapurple;
+  border: none;
+  border-radius: 0.8rem;
+  color: ghostwhite;
+  display: block;
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+  padding: 0.8rem;
+  resize: none;
+}
+
+/* .tree textarea:focus-visible {
+  outline: 0.3rem solid deeppink;
+} */
+
+.tree .field.visible,
+.tree .field:hover {
+  opacity: 1;
+  scale: 1;
+}
+
+.tree .field.interactive {
+  pointer-events: all;
 }
 
 .list {
