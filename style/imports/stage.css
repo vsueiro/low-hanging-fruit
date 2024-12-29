@@ -28,7 +28,13 @@
   cursor: grabbing;
 }
 
-.tree .field {
+.fields {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.field {
   border-radius: 0.8rem 0.8rem 25% 25%;
   margin-top: calc(-2.25% + 1px);
   opacity: 0;
@@ -42,7 +48,7 @@
   translate: -50% -100%;
 }
 
-.tree .field::after {
+.field::after {
   aspect-ratio: 1;
   background: rebeccapurple;
   border-radius: 0 0 0.4rem 0;
@@ -58,11 +64,11 @@
   width: 1rem;
 }
 
-.tree textarea::placeholder {
+.field textarea::placeholder {
   color: plum;
 }
 
-.tree textarea {
+.field textarea {
   background: rebeccapurple;
   border: none;
   border-radius: 0.8rem;
@@ -75,17 +81,17 @@
   resize: none;
 }
 
-/* .tree textarea:focus-visible {
+/* .field textarea:focus-visible {
   outline: 0.3rem solid deeppink;
 } */
 
-.tree .field.visible,
-.tree .field:hover {
+.field.visible,
+.field:hover {
   opacity: 1;
   scale: 1;
 }
 
-.tree .field.interactive {
+.field.interactive {
   pointer-events: all;
 }
 

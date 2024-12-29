@@ -25,7 +25,8 @@ const collision = {
   fruits: 0x0004,
 };
 
-const element = document.querySelector(".tree");
+const fields = document.querySelector(".fields");
+const tree = document.querySelector(".tree");
 const clearButton = document.querySelector(".clear");
 // const emptyButton = document.querySelector(".empty");
 
@@ -38,7 +39,7 @@ export default function scene() {
   engine.gravity.y = 2;
 
   const options = {
-    element: element,
+    element: tree,
     engine: engine,
     options: {
       width,
@@ -278,7 +279,7 @@ function addField(text = "") {
   textarea.value = text;
 
   field.append(textarea);
-  element.append(field);
+  fields.append(field);
 
   return field;
 }

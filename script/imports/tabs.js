@@ -7,7 +7,7 @@ export default function tabs(selector = ".tabs") {
     contents.forEach((content) => {
       content.hidden = true;
 
-      if (content.classList.contains(value)) {
+      if (content.dataset.content === value) {
         content.hidden = false;
       }
     });
