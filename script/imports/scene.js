@@ -1,7 +1,7 @@
 import Matter from "matter-js";
 import * as d3 from "d3";
 
-const { Engine, Render, Runner, Composite, Bodies, Body, Mouse, MouseConstraint, Query, Events } = Matter;
+const { Engine, Render, Runner, Composite, Bodies, Body, Mouse, MouseConstraint, Query, Bounds, Events } = Matter;
 
 window.fruits = [];
 window.data = recoverData();
@@ -21,13 +21,13 @@ let draggedFruit = false;
 let treetop = false;
 // let hoverTimeout = false;
 
-let areas = {}; // for cart and bin hit areas
+let hitboxes = {}; // for cart and bin hit areas
 
 const collision = {
   default: 0x0001,
   treetop: 0x0002,
   fruits: 0x0004,
-  hitareas: 0x0008,
+  hitboxes: 0x0008,
 };
 
 const fields = document.querySelector(".fields");
@@ -130,8 +130,6 @@ export default function scene() {
       body.userData.location = "floor";
       body.isStatic = false;
     }
-
-    console.log(body);
   });
 
   Events.on(mouseConstraint, "mousedown", (event) => {
@@ -158,6 +156,7 @@ export default function scene() {
 
   Events.on(render, "beforeRender", () => {
     updateCursor(render, mouse);
+    updateHitboxes();
     updateFields();
   });
 
@@ -232,15 +231,15 @@ function addWalls(world) {
 }
 
 function addCart(world) {
-  const area = Bodies.rectangle(1216, 1392, 384, 288, {
+  const hitbox = Bodies.rectangle(1216, 1392, 384, 288, {
     isStatic: true,
     render: { fillStyle: "red" },
     collisionFilter: {
-      category: collision.hitareas,
+      category: collision.hitboxes,
     },
   });
 
-  areas.cart = area;
+  hitboxes.cart = hitbox;
 
   const left = Bodies.rectangle(1040, 1424, 32, 224, {
     isStatic: true,
@@ -260,7 +259,7 @@ function addCart(world) {
     render: { fillStyle: "coral" },
   });
 
-  const cart = [left, right, bottom, area];
+  const cart = [left, right, bottom, hitbox];
 
   Composite.add(world, cart);
   return cart;
@@ -413,6 +412,22 @@ function updateField(fruit) {
     // hoverTimeout = setTimeout(() => {
     field.classList.remove("visible");
     // }, 250);
+  }
+}
+
+function updateHitboxes() {
+  for (const hitbox in hitboxes) {
+    const { bounds } = hitboxes[hitbox];
+
+    for (const fruit of fruits) {
+      if (fruit.userData.location === "matrix") continue;
+
+      const isInside = Bounds.contains(bounds, fruit.position);
+
+      if (isInside) {
+        fruit.userData.location = hitbox;
+      }
+    }
   }
 }
 
