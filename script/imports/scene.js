@@ -65,6 +65,7 @@ export default function scene() {
   treetop = addTreetop(world);
   addWalls(world);
   addCart(world);
+  addBin(world);
   addFruits(world);
 
   // Add mouse control
@@ -231,9 +232,9 @@ function addWalls(world) {
 }
 
 function addCart(world) {
-  const hitbox = Bodies.rectangle(1216, 1392, 384, 288, {
+  const hitbox = Bodies.rectangle(1248, 1392, 384, 288, {
     isStatic: true,
-    render: { fillStyle: "red" },
+    render: { fillStyle: "#FFBF8A" },
     collisionFilter: {
       category: collision.hitboxes,
     },
@@ -241,28 +242,50 @@ function addCart(world) {
 
   hitboxes.cart = hitbox;
 
-  const left = Bodies.rectangle(1040, 1424, 32, 224, {
+  const left = Bodies.rectangle(1072, 1424, 32, 224, {
     isStatic: true,
     friction: 2,
-    render: { fillStyle: "coral" },
+    render: { fillStyle: "#FFA585" },
   });
 
-  const right = Bodies.rectangle(1392, 1424, 32, 224, {
+  const right = Bodies.rectangle(1424, 1424, 32, 224, {
     isStatic: true,
     friction: 2,
-    render: { fillStyle: "coral" },
+    render: { fillStyle: "#FFA585" },
   });
 
-  const bottom = Bodies.rectangle(1216, 1504, 384, 64, {
+  const bottom = Bodies.rectangle(1248, 1568, 384, 192, {
     isStatic: true,
     friction: 2,
-    render: { fillStyle: "coral" },
+    render: { fillStyle: "#FFA585" },
   });
 
-  const cart = [left, right, bottom, hitbox];
+  const cart = [hitbox, left, right, bottom];
 
   Composite.add(world, cart);
   return cart;
+}
+
+function addBin(world) {
+  const hitbox = Bodies.rectangle(384, 1424, 128, 224, {
+    isStatic: true,
+    render: { fillStyle: "plum" },
+    collisionFilter: {
+      category: collision.hitboxes,
+    },
+  });
+
+  const can = Bodies.rectangle(384, 1472, 192, 384, {
+    isStatic: true,
+    render: { fillStyle: "rebeccapurple" },
+  });
+
+  hitboxes.bin = hitbox;
+
+  const bin = [can, hitbox];
+
+  Composite.add(world, bin);
+  return bin;
 }
 
 function addFruits(world) {
