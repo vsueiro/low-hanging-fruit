@@ -100,15 +100,26 @@ export default function scene() {
     });
   });
 
-  Events.on(mouseConstraint, "mousemove", () => {
+  Events.on(mouseConstraint, "mousemove", (event) => {
     if (draggedFruit) {
       if (isInsideRectangle(draggedFruit, treetop)) {
         updateCollision(draggedFruit, collision.fruits);
         updateColor(draggedFruit);
         rotateUp(draggedFruit);
-      } else {
-        updateCollision(draggedFruit, collision.default);
+        return;
       }
+
+      const { mouse } = event;
+
+      if (isInsideRectangle(mouse, hitboxes.bin)) {
+        draggedFruit.userData.field.classList.add("bin");
+        draggedFruit.collisionFilter.mask = collision.treetop;
+      } else {
+        draggedFruit.userData.field.classList.remove("bin");
+        draggedFruit.collisionFilter.mask = collision.default;
+      }
+
+      updateCollision(draggedFruit, collision.default);
     } else {
       // Move flower?
     }
@@ -124,11 +135,17 @@ export default function scene() {
       rotateUp(fruit);
       fruit.userData.location = "matrix";
       fruit.isStatic = true;
-    } else {
-      updateCollision(fruit, collision.default);
-      fruit.userData.location = "floor";
-      fruit.isStatic = false;
+      return;
     }
+
+    if (isInsideRectangle(fruit, hitboxes.bin)) {
+      clearFruit(world, fruit);
+      return;
+    }
+
+    updateCollision(fruit, collision.default);
+    fruit.userData.location = "floor";
+    fruit.isStatic = false;
   });
 
   Events.on(mouseConstraint, "mousedown", (event) => {
@@ -287,9 +304,13 @@ function addCart(world) {
 }
 
 function addBin(world) {
-  const hitbox = Bodies.rectangle(384, 1424, 128, 224, {
+  const hitbox = Bodies.rectangle(384, 1432, 128, 208, {
     isStatic: true,
+    chamfer: {
+      radius: [64, 64, 0, 0],
+    },
     render: {
+      // fillStyle: "red",
       sprite: {
         texture: `./media/sprites/bin.png`,
       },
@@ -299,15 +320,18 @@ function addBin(world) {
     },
   });
 
-  const can = Bodies.rectangle(384, 1488, 192, 352, {
+  const can = Bodies.rectangle(384, 1488, 160, 352, {
     isStatic: true,
     friction: 0,
     chamfer: {
-      radius: [96, 96, 0, 0],
+      radius: [80, 80, 0, 0],
     },
     render: {
-      // fillStyle: "red",
+      // fillStyle: "blue",
       visible: false,
+    },
+    collisionFilter: {
+      category: collision.default,
     },
   });
 
@@ -338,11 +362,6 @@ function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, locat
   });
 
   const field = addField(text);
-
-  // field.addEventListener("pointerover", () => {
-  //   console.log(fruit);
-  //   window.hoveredFruit = fruit;
-  // });
 
   fruit.userData = { location, ripeness, field };
 
@@ -417,6 +436,17 @@ function clearFruits(world) {
   fruits = [];
 }
 
+function clearFruit(world, fruit) {
+  fruit.userData.field.remove();
+  Composite.remove(world, fruit);
+
+  const index = fruits.findIndex((item) => item === fruit);
+
+  if (index > -1) {
+    fruits.splice(index, 1);
+  }
+}
+
 function getAxesValues(fruit) {
   const impact = xScale(fruit.position.x);
   const effort = yScale(fruit.position.y);
@@ -459,6 +489,9 @@ function updateField(fruit) {
 
     if (fruit === draggedFruit) {
       field.classList.remove("interactive");
+
+      // Prevent typing while dragging or over bin
+      field.querySelector("textarea").blur();
     } else {
       field.classList.add("interactive");
 
