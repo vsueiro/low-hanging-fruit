@@ -21,7 +21,7 @@ let draggedFruit = false;
 let treetop = false;
 // let hoverTimeout = false;
 
-let hitboxes = {}; // for cart and bin hit areas
+let hitboxes = {}; // for cart and bin regions detection
 
 const collision = {
   default: 0x0001,
@@ -157,7 +157,7 @@ export default function scene() {
 
   Events.on(render, "beforeRender", () => {
     updateCursor(render, mouse);
-    updateHitboxes();
+    updateCart();
     updateFields();
   });
 
@@ -438,18 +438,17 @@ function updateField(fruit) {
   }
 }
 
-function updateHitboxes() {
-  for (const hitbox in hitboxes) {
-    const { bounds } = hitboxes[hitbox];
+function updateCart() {
+  const hitbox = "cart";
+  const { bounds } = hitboxes[hitbox];
 
-    for (const fruit of fruits) {
-      if (fruit.userData.location === "matrix") continue;
+  for (const fruit of fruits) {
+    if (fruit.userData.location === "matrix") continue;
 
-      const isInside = Bounds.contains(bounds, fruit.position);
+    const isInside = Bounds.contains(bounds, fruit.position);
 
-      if (isInside) {
-        fruit.userData.location = hitbox;
-      }
+    if (isInside) {
+      fruit.userData.location = hitbox;
     }
   }
 }
