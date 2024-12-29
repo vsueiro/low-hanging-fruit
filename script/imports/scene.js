@@ -86,15 +86,14 @@ export default function scene() {
   Events.on(mouseConstraint, "startdrag", (event) => {
     const { body } = event;
 
-    if (!body) return;
-    if (!fruits.includes(body)) return;
+    if (!isFruit(body)) return;
 
     draggedFruit = body;
 
     // Handle overlapping bodies firing multiple startdrag events
     requestAnimationFrame(() => {
       if (mouseConstraint.body !== draggedFruit) return;
-      if (!fruits.includes(draggedFruit)) return;
+      if (!isFruit(draggedFruit)) return;
 
       // If a frozen circle is clicked, make it dynamic for dragging
       draggedFruit.isStatic = false;
@@ -119,9 +118,7 @@ export default function scene() {
     draggedFruit = false;
     const fruit = event.body;
 
-    console.log("enddrag fired", fruit);
-
-    if (!fruits.includes(fruit)) return;
+    if (!isFruit(fruit)) return;
 
     if (isInsideRectangle(fruit, treetop)) {
       rotateUp(fruit);
@@ -475,4 +472,8 @@ function updateCursor(render, mouse) {
 function rotateUp(fruit) {
   Body.setAngle(fruit, 0);
   Body.setAngularVelocity(fruit, 0);
+}
+
+function isFruit(body) {
+  return fruits.includes(body);
 }
