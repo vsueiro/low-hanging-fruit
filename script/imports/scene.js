@@ -23,21 +23,20 @@ const collision = {
   fruits: 0x0004,
 };
 
+const element = document.querySelector(".tree");
 const clearButton = document.querySelector(".clear");
-const emptyButton = document.querySelector(".empty");
+// const emptyButton = document.querySelector(".empty");
 
 const xScale = d3.scaleLinear().domain([320, 1280]).range([0, 100]).clamp(true);
 const yScale = d3.scaleLinear().domain([192, 1152]).range([0, 100]).clamp(true);
 
-export default function scene(selector) {
-  const parent = document.querySelector(selector) || document.body;
-
+export default function scene() {
   const engine = Engine.create();
   const { world } = engine;
   engine.gravity.y = 2;
 
   const options = {
-    element: parent,
+    element: element,
     engine: engine,
     options: {
       width,
@@ -146,9 +145,11 @@ export default function scene(selector) {
 
       lastTimestamp = timestamp;
     }
+  });
 
-    const hover = Query.point(fruits, mouse.position);
-    render.canvas.dataset.cursor = hover.length ? "grab" : "";
+  Events.on(render, "beforeRender", () => {
+    updateCursor(render, mouse);
+    updateFields();
   });
 
   // Drop dragged fruit when cursor leaves canvas
@@ -223,12 +224,12 @@ function addWalls(world) {
 
 function addFruits(world) {
   for (const entry of data) {
-    const { x, y, angle, ripeness, location } = entry;
-    addFruit(world, x, y, angle, ripeness, location);
+    const { x, y, text, angle, ripeness, location } = entry;
+    addFruit(world, x, y, text, angle, ripeness, location);
   }
 }
 
-function addFruit(world, x, y, angle = 0, ripeness = undefined, location = "matrix") {
+function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, location = "matrix") {
   const fruit = Bodies.circle(x, y, radius, {
     angle: angle,
     restitution: 0.25,
@@ -239,20 +240,32 @@ function addFruit(world, x, y, angle = 0, ripeness = undefined, location = "matr
     },
   });
 
-  fruit.userData = { location, ripeness };
+  const field = addField(text);
+
+  fruit.userData = { location, ripeness, field };
 
   updateColor(fruit, ripeness);
+  updateField(fruit);
 
   fruits.push(fruit);
+
   Composite.add(world, fruit);
 
   if (location === "matrix") {
     rotateUp(fruit);
-    fruit.isStatic = true;
     updateCollision(fruit, collision.fruits);
+    fruit.isStatic = true;
   }
 
   return fruit;
+}
+
+function addField(text = "") {
+  const field = document.createElement("textarea");
+  field.value = text;
+  element.append(field);
+
+  return field;
 }
 
 function extractData(fruits) {
@@ -261,11 +274,11 @@ function extractData(fruits) {
   for (const fruit of fruits) {
     const { id, angle } = fruit;
     const { x, y } = fruit.position;
-    const { location, ripeness } = fruit.userData;
+    const { location, ripeness, field } = fruit.userData;
     const { impact, effort } = getAxesValues(fruit);
-    const text = "";
+    const text = field.value;
 
-    const entry = { id, angle, x, y, impact, effort, location, ripeness, text };
+    const entry = { id, angle, text, x, y, impact, effort, location, ripeness };
 
     data.push(entry);
   }
@@ -287,6 +300,7 @@ function recoverData() {
 
 function clearFruits(world) {
   for (const fruit of fruits) {
+    fruit.userData.field.remove();
     Composite.remove(world, fruit);
   }
 
@@ -312,6 +326,28 @@ function updateColor(fruit, ripeness) {
 
 function updateCollision(fruit, category) {
   fruit.collisionFilter.category = category;
+}
+
+function updateFields() {
+  for (const fruit of fruits) {
+    updateField(fruit);
+  }
+}
+
+function updateField(fruit) {
+  const { field } = fruit.userData;
+  const { x, y } = fruit.position;
+
+  const left = `${(x / width) * 100}%`;
+  const top = `${(y / height) * 100}%`;
+
+  field.style.top = top;
+  field.style.left = left;
+}
+
+function updateCursor(render, mouse) {
+  const hover = Query.point(fruits, mouse.position);
+  render.canvas.dataset.cursor = hover.length ? "grab" : "";
 }
 
 function rotateUp(fruit) {
