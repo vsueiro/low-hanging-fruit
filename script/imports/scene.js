@@ -376,15 +376,21 @@ function updateField(fruit) {
 }
 
 function updateCursor(render, mouse) {
+  if (draggedFruit) {
+    hoveredFruit = draggedFruit;
+    return;
+  }
+
   const hover = Query.point(fruits, mouse.position);
 
   if (hover.length === 0) {
     render.canvas.dataset.cursor = "";
     hoveredFruit = false;
-  } else {
-    render.canvas.dataset.cursor = "grab";
-    hoveredFruit = hover[0];
+    return;
   }
+
+  render.canvas.dataset.cursor = "grab";
+  hoveredFruit = hover[0];
 }
 
 function rotateUp(fruit) {
