@@ -117,19 +117,20 @@ export default function scene() {
 
   Events.on(mouseConstraint, "enddrag", (event) => {
     draggedFruit = false;
+    const fruit = event.body;
 
-    const { body } = event;
+    console.log("enddrag fired", fruit);
 
-    if (!body) return;
-    if (!fruits.includes(body)) return;
+    if (!fruits.includes(fruit)) return;
 
-    if (isInsideRectangle(body, treetop)) {
-      rotateUp(body);
-      body.userData.location = "matrix";
-      body.isStatic = true;
+    if (isInsideRectangle(fruit, treetop)) {
+      rotateUp(fruit);
+      fruit.userData.location = "matrix";
+      fruit.isStatic = true;
     } else {
-      body.userData.location = "floor";
-      body.isStatic = false;
+      updateCollision(fruit, collision.default);
+      fruit.userData.location = "floor";
+      fruit.isStatic = false;
     }
   });
 
