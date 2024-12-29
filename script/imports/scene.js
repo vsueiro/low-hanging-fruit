@@ -13,16 +13,21 @@ const ground = 63;
 const radius = 36;
 const debounce = 1000;
 
+// TODO: Consider if this needs to be on window
+window.hoveredFruit = false;
+
 let lastTimestamp = 0;
 let draggedFruit = false;
-window.hoveredFruit = false;
 let treetop = false;
 // let hoverTimeout = false;
+
+let areas = {}; // for cart and bin hit areas
 
 const collision = {
   default: 0x0001,
   treetop: 0x0002,
   fruits: 0x0004,
+  hitareas: 0x0008,
 };
 
 const fields = document.querySelector(".fields");
@@ -45,7 +50,6 @@ export default function scene() {
       width,
       height,
       background: "transparent",
-      // background: "ghostwhite",
       wireframes: false,
     },
   };
@@ -60,6 +64,7 @@ export default function scene() {
 
   treetop = addTreetop(world);
   addWalls(world);
+  addCart(world);
   addFruits(world);
 
   // Add mouse control
@@ -224,6 +229,41 @@ function addWalls(world) {
 
   Composite.add(world, walls);
   return walls;
+}
+
+function addCart(world) {
+  const area = Bodies.rectangle(1216, 1392, 384, 288, {
+    isStatic: true,
+    render: { fillStyle: "red" },
+    collisionFilter: {
+      category: collision.hitareas,
+    },
+  });
+
+  areas.cart = area;
+
+  const left = Bodies.rectangle(1040, 1424, 32, 224, {
+    isStatic: true,
+    friction: 2,
+    render: { fillStyle: "coral" },
+  });
+
+  const right = Bodies.rectangle(1392, 1424, 32, 224, {
+    isStatic: true,
+    friction: 2,
+    render: { fillStyle: "coral" },
+  });
+
+  const bottom = Bodies.rectangle(1216, 1504, 384, 64, {
+    isStatic: true,
+    friction: 2,
+    render: { fillStyle: "coral" },
+  });
+
+  const cart = [left, right, bottom, area];
+
+  Composite.add(world, cart);
+  return cart;
 }
 
 function addFruits(world) {
