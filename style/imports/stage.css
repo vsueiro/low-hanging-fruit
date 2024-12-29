@@ -25,10 +25,11 @@
 }
 
 .tree textarea {
-  position: absolute;
   display: block;
-  /* top: 50%;
-  left: 50%; */
+  margin-top: -4.5%;
+  position: absolute;
+  resize: none;
+  translate: -50% -100%;
 }
 
 .list {
