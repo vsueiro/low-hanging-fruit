@@ -185,7 +185,7 @@ function addTreetop(world) {
   const treetop = Bodies.rectangle(800, 672, 960, 960, {
     isStatic: true,
     render: {
-      fillStyle: "transparent",
+      visible: false,
     },
     collisionFilter: {
       category: collision.treetop,
@@ -232,7 +232,11 @@ function addWalls(world) {
 function addCart(world) {
   const hitbox = Bodies.rectangle(1248, 1392, 384, 288, {
     isStatic: true,
-    render: { fillStyle: "#FFBF8A" },
+    render: {
+      sprite: {
+        texture: `./media/sprites/cart.png`,
+      },
+    },
     collisionFilter: {
       category: collision.hitboxes,
     },
@@ -242,20 +246,35 @@ function addCart(world) {
 
   const left = Bodies.rectangle(1072, 1424, 32, 224, {
     isStatic: true,
-    friction: 2,
-    render: { fillStyle: "#FFA585" },
+    friction: 0,
+    chamfer: {
+      radius: [16, 16, 0, 0],
+    },
+    render: {
+      // fillStyle: "red",
+      visible: false,
+    },
   });
 
   const right = Bodies.rectangle(1424, 1424, 32, 224, {
     isStatic: true,
-    friction: 2,
-    render: { fillStyle: "#FFA585" },
+    friction: 0,
+    chamfer: {
+      radius: [16, 16, 0, 0],
+    },
+    render: {
+      // fillStyle: "red",
+      visible: false,
+    },
   });
 
   const bottom = Bodies.rectangle(1248, 1568, 384, 192, {
     isStatic: true,
     friction: 2,
-    render: { fillStyle: "#FFA585" },
+    render: {
+      // fillStyle: "red",
+      visible: false,
+    },
   });
 
   const cart = [hitbox, left, right, bottom];
@@ -267,15 +286,26 @@ function addCart(world) {
 function addBin(world) {
   const hitbox = Bodies.rectangle(384, 1424, 128, 224, {
     isStatic: true,
-    render: { fillStyle: "plum" },
+    render: {
+      sprite: {
+        texture: `./media/sprites/bin.png`,
+      },
+    },
     collisionFilter: {
       category: collision.hitboxes,
     },
   });
 
-  const can = Bodies.rectangle(384, 1472, 192, 384, {
+  const can = Bodies.rectangle(384, 1488, 192, 352, {
     isStatic: true,
-    render: { fillStyle: "rebeccapurple" },
+    friction: 0,
+    chamfer: {
+      radius: [96, 96, 0, 0],
+    },
+    render: {
+      // fillStyle: "red",
+      visible: false,
+    },
   });
 
   hitboxes.bin = hitbox;
