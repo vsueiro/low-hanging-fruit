@@ -461,6 +461,12 @@ function updateField(fruit) {
       field.classList.remove("interactive");
     } else {
       field.classList.add("interactive");
+
+      // Give it time to be visible
+      requestAnimationFrame(() => {
+        // Easily type task of hovered (or newly created) fruit
+        field.querySelector("textarea").focus();
+      });
     }
   } else {
     // hoverTimeout = setTimeout(() => {
