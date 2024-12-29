@@ -166,7 +166,10 @@ export default function scene() {
   });
 
   clearButton.addEventListener("click", () => {
-    clearFruits(world);
+    const warning = "Delete all tasks?";
+    if (confirm(warning)) {
+      clearFruits(world);
+    }
   });
 
   window.addEventListener("beforeunload", () => {
