@@ -44,7 +44,8 @@ export default function scene() {
     options: {
       width,
       height,
-      background: "ghostwhite",
+      background: "transparent",
+      // background: "ghostwhite",
       wireframes: false,
     },
   };
@@ -181,7 +182,7 @@ function addTreetop(world) {
   const treetop = Bodies.rectangle(800, 672, 960, 960, {
     isStatic: true,
     render: {
-      fillStyle: "powderblue",
+      fillStyle: "transparent",
     },
     collisionFilter: {
       category: collision.treetop,

@@ -11,7 +11,9 @@
 }
 
 .tree {
-  background: powderblue;
+  background: url(../../media/sprites/background.png);
+  background-repeat: no-repeat;
+  background-size: 100%;
   border-radius: 1.6rem;
   display: grid;
   inset: 0;
