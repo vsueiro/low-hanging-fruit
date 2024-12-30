@@ -19,6 +19,7 @@ window.hoveredFruit = false;
 let lastTimestamp = 0;
 let draggedFruit = false;
 let treetop = false;
+let flower = false;
 // let hoverTimeout = false;
 
 let hitboxes = {}; // for cart and bin regions detection
@@ -72,6 +73,7 @@ export default function scene() {
   data = recoverData();
 
   treetop = addTreetop(world);
+  flower = addFlower(world);
   addWalls(world);
   addCart(world);
   addBin(world);
@@ -87,7 +89,12 @@ export default function scene() {
         visible: false,
       },
     },
+    collisionFilter: {
+      // Prevent mouse interactions with hitboxes
+      mask: ~collision.hitboxes,
+    },
   });
+
   Composite.add(world, mouseConstraint);
   render.mouse = mouse;
 
@@ -110,6 +117,15 @@ export default function scene() {
   });
 
   Events.on(mouseConstraint, "mousemove", (event) => {
+    const { mouse } = event;
+
+    // Make flower follow mouse
+
+    // Avoid NaNs
+    if (mouse.position.x && mouse.position.y) {
+      Body.setPosition(flower, mouse.position);
+    }
+
     if (draggedFruit) {
       if (isInsideRectangle(draggedFruit, treetop)) {
         updateCollision(draggedFruit, collision.fruits);
@@ -117,8 +133,6 @@ export default function scene() {
         rotateUp(draggedFruit);
         return;
       }
-
-      const { mouse } = event;
 
       if (isInsideRectangle(mouse, hitboxes.bin)) {
         draggedFruit.userData.field.classList.add("bin");
@@ -162,6 +176,7 @@ export default function scene() {
 
     const { x, y } = event.mouse.position;
 
+    // If clicked on tree, add fruit
     if (isInsideRectangle(mouse, treetop)) {
       addFruit(world, x, y);
     }
@@ -265,7 +280,7 @@ function addCart(world) {
       sprite: {
         texture: `./media/sprites/cart.png`,
       },
-      zIndex: 2,
+      zIndex: 3,
     },
     collisionFilter: {
       category: collision.hitboxes,
@@ -353,6 +368,26 @@ function addBin(world) {
   return bin;
 }
 
+function addFlower(world) {
+  const flower = Bodies.circle(-32, -32, 32, {
+    angle: 0,
+    isStatic: true,
+    collisionFilter: {
+      mask: 0x000,
+    },
+    render: {
+      sprite: {
+        texture: `./media/sprites/flower.png`,
+      },
+      zIndex: 1,
+    },
+  });
+
+  Composite.add(world, flower);
+
+  return flower;
+}
+
 function addFruits(world) {
   for (const entry of data) {
     const { x, y, text, angle, ripeness, location } = entry;
@@ -370,7 +405,7 @@ function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, locat
       mask: collision.default,
     },
     render: {
-      zIndex: 1,
+      zIndex: 2,
     },
   });
 
