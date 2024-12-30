@@ -60,6 +60,15 @@ export default function scene() {
   const runner = Runner.create();
   Runner.run(runner, engine);
 
+  // Update depth (based custom zIndex property in body.render)
+  Events.on(world, "afterAdd", () => {
+    updateDepth(world);
+  });
+
+  Events.on(world, "afterRemove", () => {
+    updateDepth(world);
+  });
+
   data = recoverData();
 
   treetop = addTreetop(world);
@@ -256,6 +265,7 @@ function addCart(world) {
       sprite: {
         texture: `./media/sprites/cart.png`,
       },
+      zIndex: 2,
     },
     collisionFilter: {
       category: collision.hitboxes,
@@ -358,6 +368,9 @@ function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, locat
     collisionFilter: {
       category: collision.default,
       mask: collision.default,
+    },
+    render: {
+      zIndex: 1,
     },
   });
 
@@ -539,6 +552,14 @@ function updateCursor(render, mouse) {
 
   render.canvas.dataset.cursor = "grab";
   hoveredFruit = hover[0];
+}
+
+function updateDepth(world) {
+  Composite.allBodies(world).sort((a, b) => {
+    const zIndexA = a?.render?.zIndex ? a.render.zIndex : 0;
+    const zIndexB = b?.render?.zIndex ? b.render.zIndex : 0;
+    return zIndexA - zIndexB;
+  });
 }
 
 function rotateUp(fruit) {
