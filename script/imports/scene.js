@@ -13,8 +13,9 @@ const ground = 63;
 const radius = 36;
 const debounce = 1000;
 
-// TODO: Consider if this needs to be on window
+// TODO: Consider if these need to be on window
 window.hoveredFruit = false;
+window.deltaTime = 0;
 
 let lastTimestamp = 0;
 let draggedFruit = false;
@@ -187,7 +188,9 @@ export default function scene() {
     }
   });
 
-  Events.on(render, "beforeRender", () => {
+  Events.on(render, "beforeRender", (event) => {
+    deltaTime = event.source.timing.delta;
+
     updateCursor(render, mouse);
     updateCart();
     updateFields();
@@ -564,7 +567,7 @@ function updateCart() {
   }
 }
 
-function updateCursor(render, mouse) {
+function updateCursor(render, mouse, deltaTime) {
   if (draggedFruit) {
     hoveredFruit = draggedFruit;
     fadeOut(flower);
@@ -585,11 +588,13 @@ function updateCursor(render, mouse) {
 
   if (isInsideRectangle(mouse, treetop)) {
     const { x, y } = mouse.position;
-
     if (isNaN(x) || isNaN(y)) return;
 
-    // Make flower follow mouse
-    Body.setPosition(flower, { x, y });
+    const angle = flower.angle + 0.002 * window.deltaTime;
+
+    Body.setPosition(flower, { x, y }); // Move flower to follow mouse
+    Body.setAngle(flower, angle); // Spin flower
+
     fadeIn(flower);
 
     return;
