@@ -565,27 +565,37 @@ function updateCart() {
 }
 
 function updateCursor(render, mouse) {
-  // TODO: hide flower when outside of treetop or when hovering fruit
-  // Make flower follow mouse
-  if (mouse.position.x && mouse.position.y) {
-    Body.setPosition(flower, mouse.position);
-  }
-
   if (draggedFruit) {
     hoveredFruit = draggedFruit;
+    fadeOut(flower);
     return;
   }
 
   const hover = Query.point(fruits, mouse.position);
 
-  if (hover.length === 0) {
-    render.canvas.dataset.cursor = "";
-    hoveredFruit = false;
+  if (hover.length > 0) {
+    render.canvas.dataset.cursor = "grab";
+    hoveredFruit = hover[0];
+    fadeOut(flower);
     return;
   }
 
-  render.canvas.dataset.cursor = "grab";
-  hoveredFruit = hover[0];
+  render.canvas.dataset.cursor = "";
+  hoveredFruit = false;
+
+  if (isInsideRectangle(mouse, treetop)) {
+    const { x, y } = mouse.position;
+
+    if (isNaN(x) || isNaN(y)) return;
+
+    // Make flower follow mouse
+    Body.setPosition(flower, { x, y });
+    fadeIn(flower);
+
+    return;
+  }
+
+  fadeOut(flower);
 }
 
 function updateDepth(world) {
@@ -603,4 +613,12 @@ function rotateUp(fruit) {
 
 function isFruit(body) {
   return fruits.includes(body);
+}
+
+function fadeIn(body) {
+  body.render.opacity = 1;
+}
+
+function fadeOut(body) {
+  body.render.opacity = 0;
 }
