@@ -119,13 +119,6 @@ export default function scene() {
   Events.on(mouseConstraint, "mousemove", (event) => {
     const { mouse } = event;
 
-    // Make flower follow mouse
-
-    // Avoid NaNs
-    if (mouse.position.x && mouse.position.y) {
-      Body.setPosition(flower, mouse.position);
-    }
-
     if (draggedFruit) {
       if (isInsideRectangle(draggedFruit, treetop)) {
         updateCollision(draggedFruit, collision.fruits);
@@ -572,6 +565,12 @@ function updateCart() {
 }
 
 function updateCursor(render, mouse) {
+  // TODO: hide flower when outside of treetop or when hovering fruit
+  // Make flower follow mouse
+  if (mouse.position.x && mouse.position.y) {
+    Body.setPosition(flower, mouse.position);
+  }
+
   if (draggedFruit) {
     hoveredFruit = draggedFruit;
     return;
