@@ -403,7 +403,6 @@ function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, locat
     },
     render: {
       zIndex: 2,
-      opacity: 0,
     },
   });
 
@@ -413,7 +412,7 @@ function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, locat
 
   updateColor(fruit, ripeness);
   updateField(fruit);
-  fadeIn(fruit);
+  grow(fruit);
 
   fruits.push(fruit);
 
@@ -484,7 +483,7 @@ function clearFruits(world) {
 }
 
 function clearFruit(world, fruit) {
-  fadeOut(fruit);
+  shrink(fruit);
   fruit.userData.field.classList.add("clearing");
 
   setTimeout(() => {
@@ -578,7 +577,7 @@ function updateCart() {
 function updateCursor(render, mouse, deltaTime) {
   if (draggedFruit) {
     hoveredFruit = draggedFruit;
-    fadeOut(flower);
+    shrink(flower);
     return;
   }
 
@@ -587,7 +586,7 @@ function updateCursor(render, mouse, deltaTime) {
   if (hover.length > 0) {
     render.canvas.dataset.cursor = "grab";
     hoveredFruit = hover[0];
-    fadeOut(flower);
+    shrink(flower);
     return;
   }
 
@@ -604,11 +603,11 @@ function updateCursor(render, mouse, deltaTime) {
   Body.setAngle(flower, angle);
 
   if (isInsideRectangle(mouse, treetop)) {
-    fadeIn(flower);
+    grow(flower);
     return;
   }
 
-  fadeOut(flower);
+  shrink(flower);
 }
 
 function updateDepth(world) {
@@ -619,21 +618,30 @@ function updateDepth(world) {
   });
 }
 
+function updateTransitionScale(body, property = "scale") {
+  const current = body[property] || 0;
+  const target = body.transition[property];
+  const value = expDecay(current, target);
+
+  if (value.toFixed(4) === target.toFixed(4)) {
+    delete body.transition[property];
+    return;
+  }
+
+  body.scale = value;
+  body.render.sprite.xScale = value;
+  body.render.sprite.yScale = value;
+}
+
 function updateTransitions(world) {
   for (const body of Composite.allBodies(world)) {
-    if (body?.render?.transition === undefined) continue;
+    if (!body.transition) continue;
 
-    for (const property in body.render.transition) {
-      const current = body.render[property];
-      const target = body.render.transition[property];
-      const value = expDecay(current, target);
-
-      if (value === target) {
-        delete body.render.transition[property];
+    for (const property in body.transition) {
+      if (property === "scale") {
+        updateTransitionScale(body);
         continue;
       }
-
-      body.render[property] = value;
     }
   }
 }
@@ -652,18 +660,12 @@ function expDecay(a, b, decay = 12, dt = deltaTime) {
   return b + (a - b) * Math.exp(-decay * dt);
 }
 
-function fadeIn(body) {
-  body.render ??= {};
-  body.render.transition ??= {};
-
-  body.render.transition.opacity = 1;
-  // body.render.opacity = 1;
+function grow(body, scale = 1) {
+  body.transition ??= {};
+  body.transition.scale = scale;
 }
 
-function fadeOut(body) {
-  body.render ??= {};
-  body.render.transition ??= {};
-
-  body.render.transition.opacity = 0;
-  // body.render.opacity = 0;
+function shrink(body, scale = 0) {
+  body.transition ??= {};
+  body.transition.scale = scale;
 }
