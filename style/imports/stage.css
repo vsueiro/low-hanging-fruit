@@ -50,6 +50,12 @@
   translate: -50% -100%;
 }
 
+.field.clearing {
+  opacity: 0 !important;
+  pointer-events: none;
+  scale: 0 !important;
+}
+
 .field::after {
   aspect-ratio: 1;
   background: rebeccapurple;

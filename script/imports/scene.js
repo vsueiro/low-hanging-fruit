@@ -403,6 +403,7 @@ function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, locat
     },
     render: {
       zIndex: 2,
+      opacity: 0,
     },
   });
 
@@ -412,6 +413,7 @@ function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, locat
 
   updateColor(fruit, ripeness);
   updateField(fruit);
+  fadeIn(fruit);
 
   fruits.push(fruit);
 
@@ -482,14 +484,19 @@ function clearFruits(world) {
 }
 
 function clearFruit(world, fruit) {
-  fruit.userData.field.remove();
-  Composite.remove(world, fruit);
+  fadeOut(fruit);
+  fruit.userData.field.classList.add("clearing");
 
-  const index = fruits.findIndex((item) => item === fruit);
+  setTimeout(() => {
+    fruit.userData.field.remove();
+    Composite.remove(world, fruit);
 
-  if (index > -1) {
-    fruits.splice(index, 1);
-  }
+    const index = fruits.findIndex((item) => item === fruit);
+
+    if (index > -1) {
+      fruits.splice(index, 1);
+    }
+  }, 500);
 }
 
 function getAxesValues(fruit) {
