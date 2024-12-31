@@ -15,7 +15,7 @@ const debounce = 1000;
 
 // TODO: Consider if these need to be on window
 window.hoveredFruit = false;
-window.deltaTime = 0;
+window.deltaTime = 0; // Should be in seconds, not ms
 
 let lastTimestamp = 0;
 let draggedFruit = false;
@@ -189,8 +189,9 @@ export default function scene() {
   });
 
   Events.on(render, "beforeRender", (event) => {
-    deltaTime = event.source.timing.delta;
+    deltaTime = event.source.timing.delta / 1000;
 
+    updateTransitions(world);
     updateCursor(render, mouse);
     updateCart();
     updateFields();
@@ -586,17 +587,17 @@ function updateCursor(render, mouse, deltaTime) {
   render.canvas.dataset.cursor = "";
   hoveredFruit = false;
 
+  // Move flower to follow mouse
+  const { x, y } = mouse.position;
+  if (isNaN(x) || isNaN(y)) return;
+  Body.setPosition(flower, { x, y });
+
+  // Spin flower
+  const angle = flower.angle + 1 * window.deltaTime;
+  Body.setAngle(flower, angle);
+
   if (isInsideRectangle(mouse, treetop)) {
-    const { x, y } = mouse.position;
-    if (isNaN(x) || isNaN(y)) return;
-
-    const angle = flower.angle + 0.002 * window.deltaTime;
-
-    Body.setPosition(flower, { x, y }); // Move flower to follow mouse
-    Body.setAngle(flower, angle); // Spin flower
-
     fadeIn(flower);
-
     return;
   }
 
@@ -611,6 +612,25 @@ function updateDepth(world) {
   });
 }
 
+function updateTransitions(world) {
+  for (const body of Composite.allBodies(world)) {
+    if (body?.render?.transition === undefined) continue;
+
+    for (const property in body.render.transition) {
+      const current = body.render[property];
+      const target = body.render.transition[property];
+      const value = expDecay(current, target);
+
+      if (value === target) {
+        delete body.render.transition[property];
+        continue;
+      }
+
+      body.render[property] = value;
+    }
+  }
+}
+
 function rotateUp(fruit) {
   Body.setAngle(fruit, 0);
   Body.setAngularVelocity(fruit, 0);
@@ -620,10 +640,23 @@ function isFruit(body) {
   return fruits.includes(body);
 }
 
+// By Freya Holmér https://youtu.be/LSNQuFEDOyQ
+function expDecay(a, b, decay = 12, dt = deltaTime) {
+  return b + (a - b) * Math.exp(-decay * dt);
+}
+
 function fadeIn(body) {
-  body.render.opacity = 1;
+  body.render ??= {};
+  body.render.transition ??= {};
+
+  body.render.transition.opacity = 1;
+  // body.render.opacity = 1;
 }
 
 function fadeOut(body) {
-  body.render.opacity = 0;
+  body.render ??= {};
+  body.render.transition ??= {};
+
+  body.render.transition.opacity = 0;
+  // body.render.opacity = 0;
 }
