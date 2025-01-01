@@ -570,17 +570,13 @@ function updateField(fruit) {
 }
 
 function updateCart() {
-  const hitbox = "cart";
-  const { bounds } = hitboxes[hitbox];
+  const { bounds } = hitboxes.cart;
 
   for (const fruit of fruits) {
     if (fruit.userData.location === "matrix") continue;
 
-    const isInside = Bounds.contains(bounds, fruit.position);
-
-    if (isInside) {
-      fruit.userData.location = hitbox;
-    }
+    const inCart = Bounds.contains(bounds, fruit.position);
+    fruit.userData.location = inCart ? "cart" : "floor";
   }
 }
 
