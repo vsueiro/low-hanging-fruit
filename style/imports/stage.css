@@ -68,7 +68,7 @@
   pointer-events: none;
   position: absolute;
   rotate: 45deg;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, opacity 0.2s;
   translate: -50% -50%;
   width: 1rem;
 }
@@ -88,7 +88,7 @@
   outline: none;
   padding: 0.8rem;
   resize: none;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, opacity 0.2s;
 }
 
 /* .field textarea:focus-visible {
@@ -107,10 +107,12 @@
 
 .field.bin::after {
   background: deeppink;
+  opacity: 0.5;
 }
 
 .field.bin textarea {
   background: deeppink;
+  opacity: 0.5;
   text-decoration: line-through;
 }
 

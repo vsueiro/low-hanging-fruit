@@ -9,7 +9,7 @@ window.data = recoverData();
 const width = 1600;
 const height = 1600;
 const wall = 1600;
-const ground = 63;
+const ground = 64;
 const radius = 36;
 const debounce = 1000;
 
@@ -127,21 +127,25 @@ export default function scene() {
         updateCollision(draggedFruit, collision.fruits);
         updateColor(draggedFruit);
         rotateUp(draggedFruit);
+        closeBin();
         return;
       }
 
       if (isInsideRectangle(mouse, hitboxes.bin)) {
         draggedFruit.userData.field.classList.add("bin");
         draggedFruit.collisionFilter.mask = collision.treetop;
+        openBin();
       } else {
         draggedFruit.userData.field.classList.remove("bin");
         draggedFruit.collisionFilter.mask = collision.default;
+        closeBin();
       }
 
       updateCollision(draggedFruit, collision.default);
-    } else {
-      // Move flower?
+      return;
     }
+
+    closeBin();
   });
 
   Events.on(mouseConstraint, "enddrag", (event) => {
@@ -294,8 +298,6 @@ function addCart(world) {
     },
   });
 
-  hitboxes.cart = hitbox;
-
   const left = Bodies.rectangle(1072, 1424, 32, 224, {
     isStatic: true,
     friction: 0,
@@ -326,6 +328,7 @@ function addCart(world) {
     },
   });
 
+  hitboxes.cart = hitbox;
   composites.cart = Composite.create();
   Composite.add(composites.cart, [hitbox, left, right, bottom]);
   Composite.add(world, composites.cart);
@@ -334,7 +337,10 @@ function addCart(world) {
 }
 
 function addBin(world) {
-  const hitbox = Bodies.rectangle(384, 1432, 128, 208, {
+  // Arbirary distance to compensate for chamfer imprecision (moves rectangle up)
+  const yOffset = 6;
+
+  const hitbox = Bodies.rectangle(384, 1432 + yOffset, 128, 208, {
     isStatic: true,
     chamfer: {
       radius: [64, 64, 0, 0],
@@ -342,7 +348,7 @@ function addBin(world) {
     render: {
       // fillStyle: "red",
       sprite: {
-        texture: `./media/sprites/bin.png`,
+        texture: `./media/sprites/bin-can.png`,
       },
     },
     collisionFilter: {
@@ -350,7 +356,7 @@ function addBin(world) {
     },
   });
 
-  const can = Bodies.rectangle(384, 1488, 160, 352, {
+  const can = Bodies.rectangle(384, 1488 + yOffset, 160, 352, {
     isStatic: true,
     friction: 0,
     chamfer: {
@@ -365,12 +371,30 @@ function addBin(world) {
     },
   });
 
+  const lid = Bodies.rectangle(384, 1344, 128, 32, {
+    isStatic: true,
+    render: {
+      fillStyle: "green",
+      sprite: {
+        texture: `./media/sprites/bin-lid.png`,
+        xOffset: -0.5,
+        yOffset: 0.5,
+      },
+    },
+    collisionFilter: {
+      mask: collision.none,
+    },
+  });
+
+  // Set pivot point to bottom left corner
+  Body.setCentre(lid, { x: -64, y: 16 }, true);
+
   hitboxes.bin = hitbox;
+  composites.bin = Composite.create();
+  Composite.add(composites.bin, [hitbox, can, lid]);
+  Composite.add(world, composites.bin);
 
-  const bin = [can, hitbox];
-
-  Composite.add(world, bin);
-  return bin;
+  return composites.bin;
 }
 
 function addFlower(world) {
@@ -711,6 +735,17 @@ function updateTransitions(world) {
       }
     }
   }
+}
+
+function openBin() {
+  const lid = Composite.allBodies(composites.bin).at(-1);
+  Body.setAngle(lid, -Math.PI / 2);
+}
+
+function closeBin() {
+  const lid = Composite.allBodies(composites.bin).at(-1);
+
+  Body.setAngle(lid, 0);
 }
 
 function rotateUp(fruit) {
