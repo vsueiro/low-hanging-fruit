@@ -24,8 +24,10 @@ let flower = false;
 // let hoverTimeout = false;
 
 let hitboxes = {}; // for cart and bin regions detection
+let composites = {};
 
 const collision = {
+  none: 0x0000,
   default: 0x0001,
   treetop: 0x0002,
   fruits: 0x0004,
@@ -205,16 +207,16 @@ export default function scene() {
 
   clearButton.addEventListener("click", () => {
     const warning = "Remove all fruits?";
-    if (confirm(warning)) {
-      clearFruits(world);
-    }
+    // if (confirm(warning)) {
+    clearFruits(world);
+    // }
   });
 
   emptyButton.addEventListener("click", () => {
     const warning = "Remove fruits from cart?";
-    if (confirm(warning)) {
-      emptyCart(world);
-    }
+    // if (confirm(warning)) {
+    emptyCart(world);
+    // }
   });
 
   window.addEventListener("beforeunload", () => {
@@ -286,6 +288,7 @@ function addCart(world) {
       },
       zIndex: 3,
     },
+    scale: 1,
     collisionFilter: {
       category: collision.hitboxes,
     },
@@ -300,7 +303,6 @@ function addCart(world) {
       radius: [16, 16, 0, 0],
     },
     render: {
-      // fillStyle: "red",
       visible: false,
     },
   });
@@ -312,7 +314,6 @@ function addCart(world) {
       radius: [16, 16, 0, 0],
     },
     render: {
-      // fillStyle: "red",
       visible: false,
     },
   });
@@ -321,15 +322,15 @@ function addCart(world) {
     isStatic: true,
     friction: 2,
     render: {
-      // fillStyle: "red",
       visible: false,
     },
   });
 
-  const cart = [hitbox, left, right, bottom];
+  composites.cart = Composite.create();
+  Composite.add(composites.cart, [hitbox, left, right, bottom]);
+  Composite.add(world, composites.cart);
 
-  Composite.add(world, cart);
-  return cart;
+  return composites.cart;
 }
 
 function addBin(world) {
@@ -487,7 +488,7 @@ function clearFruits(world) {
 }
 
 function clearFruit(world, fruit) {
-  const delay = 400;
+  const delay = 600;
   fruit.isStatic = true;
   fruit.userData.field.classList.add("clearing");
   shrink(fruit);
@@ -500,12 +501,50 @@ function clearFruit(world, fruit) {
     if (index > -1) fruits.splice(index, 1);
   }, delay);
 }
-
+// Ok
 function emptyCart(world) {
-  for (const body of Composite.allBodies(world)) {
-    if (body?.userData?.location !== "cart") continue;
-    clearFruit(world, body);
+  const delay = 600;
+  emptyButton.disabled = true;
+
+  for (const body of Composite.allBodies(composites.cart)) {
+    const defaultMask = body.collisionFilter.mask;
+    body.collisionFilter.mask = collision.none;
+    translate(body, 576, 0);
+
+    setTimeout(() => {
+      translate(body, -576, 0);
+
+      setTimeout(() => {
+        body.collisionFilter.mask = defaultMask;
+      }, delay);
+    }, delay);
   }
+
+  for (const body of Composite.allBodies(world)) {
+    if (!isFruit(body)) continue;
+    if (body?.userData?.location !== "cart") {
+      const defaultStatic = body.isStatic;
+
+      body.isStatic = true;
+
+      setTimeout(() => {
+        body.isStatic = defaultStatic;
+      }, delay * 2);
+
+      continue;
+    }
+
+    body.collisionFilter.mask = collision.none;
+    translate(body, 576, 0);
+
+    setTimeout(() => {
+      clearFruit(world, body);
+    }, delay);
+  }
+
+  setTimeout(() => {
+    emptyButton.disabled = false;
+  }, delay * 2);
 }
 
 function getAxesValues(fruit) {
@@ -624,19 +663,36 @@ function updateDepth(world) {
   });
 }
 
-function updateTransitionScale(body, property = "scale") {
-  const current = body[property] || 0;
-  const target = body.transition[property];
+function updateTransitionScale(body) {
+  const target = body.transition.scale;
+  const current = body.scale || 0;
   const value = expDecay(current, target);
 
   if (value.toFixed(4) === target.toFixed(4)) {
-    delete body.transition[property];
+    delete body.transition.scale;
     return;
   }
 
   body.scale = value;
   body.render.sprite.xScale = value;
   body.render.sprite.yScale = value;
+}
+
+function updateTransitionTranslate(body) {
+  const { originalX, originalY } = body.transition.translate;
+  const targetX = body.transition.translate.x + originalX;
+  const targetY = body.transition.translate.y + originalY;
+  const currentX = body.position.x;
+  const currentY = body.position.y;
+  const valueX = expDecay(currentX, targetX);
+  const valueY = expDecay(currentY, targetY);
+
+  if (valueX.toFixed(4) === targetX.toFixed(4)) {
+    delete body.transition.translate;
+    return;
+  }
+
+  Body.setPosition(body, { x: valueX, y: valueY });
 }
 
 function updateTransitions(world) {
@@ -646,6 +702,11 @@ function updateTransitions(world) {
     for (const property in body.transition) {
       if (property === "scale") {
         updateTransitionScale(body);
+        continue;
+      }
+
+      if (property === "translate") {
+        updateTransitionTranslate(body);
         continue;
       }
     }
@@ -666,12 +727,18 @@ function expDecay(a, b, decay = 12, dt = deltaTime) {
   return b + (a - b) * Math.exp(-decay * dt);
 }
 
+// Set properties to transition
 function grow(body, scale = 1) {
   body.transition ??= {};
   body.transition.scale = scale;
 }
-
 function shrink(body, scale = 0) {
   body.transition ??= {};
   body.transition.scale = scale;
+}
+function translate(body, x = 0, y = 0) {
+  body.transition ??= {};
+  const originalX = body.position.x;
+  const originalY = body.position.y;
+  body.transition.translate = { x, y, originalX, originalY };
 }
