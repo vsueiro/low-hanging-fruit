@@ -487,19 +487,18 @@ function clearFruits(world) {
 }
 
 function clearFruit(world, fruit) {
-  shrink(fruit);
+  const delay = 400;
+  fruit.isStatic = true;
   fruit.userData.field.classList.add("clearing");
+  shrink(fruit);
 
   setTimeout(() => {
     fruit.userData.field.remove();
     Composite.remove(world, fruit);
 
     const index = fruits.findIndex((item) => item === fruit);
-
-    if (index > -1) {
-      fruits.splice(index, 1);
-    }
-  }, 500);
+    if (index > -1) fruits.splice(index, 1);
+  }, delay);
 }
 
 function emptyCart(world) {
