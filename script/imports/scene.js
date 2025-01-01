@@ -482,11 +482,8 @@ function recoverData() {
 
 function clearFruits(world) {
   for (const fruit of fruits) {
-    fruit.userData.field.remove();
-    Composite.remove(world, fruit);
+    clearFruit(world, fruit);
   }
-
-  fruits = [];
 }
 
 function clearFruit(world, fruit) {
