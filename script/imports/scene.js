@@ -35,7 +35,7 @@ const collision = {
 const fields = document.querySelector(".fields");
 const tree = document.querySelector(".tree");
 const clearButton = document.querySelector(".clear");
-// const emptyButton = document.querySelector(".empty");
+const emptyButton = document.querySelector(".empty");
 
 const xScale = d3.scaleLinear().domain([320, 1280]).range([0, 100]).clamp(true);
 const yScale = d3.scaleLinear().domain([192, 1152]).range([0, 100]).clamp(true);
@@ -204,9 +204,16 @@ export default function scene() {
   });
 
   clearButton.addEventListener("click", () => {
-    const warning = "Delete all tasks?";
+    const warning = "Remove all fruits?";
     if (confirm(warning)) {
       clearFruits(world);
+    }
+  });
+
+  emptyButton.addEventListener("click", () => {
+    const warning = "Remove fruits from cart?";
+    if (confirm(warning)) {
+      emptyCart(world);
     }
   });
 
@@ -496,6 +503,13 @@ function clearFruit(world, fruit) {
       fruits.splice(index, 1);
     }
   }, 500);
+}
+
+function emptyCart(world) {
+  for (const body of Composite.allBodies(world)) {
+    if (body?.userData?.location !== "cart") continue;
+    clearFruit(world, body);
+  }
 }
 
 function getAxesValues(fruit) {
