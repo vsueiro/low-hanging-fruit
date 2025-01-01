@@ -702,6 +702,19 @@ function updateTransitionScale(body) {
   body.render.sprite.yScale = value;
 }
 
+function updateTransitionAngle(body) {
+  const target = body.transition.angle;
+  const current = body.angle || 0;
+  const value = expDecay(current, target);
+
+  if (value.toFixed(4) === target.toFixed(4)) {
+    delete body.transition.angle;
+    return;
+  }
+
+  Body.setAngle(body, value);
+}
+
 function updateTransitionTranslate(body) {
   const { originalX, originalY } = body.transition.translate;
   const targetX = body.transition.translate.x + originalX;
@@ -729,6 +742,11 @@ function updateTransitions(world) {
         continue;
       }
 
+      if (property === "angle") {
+        updateTransitionAngle(body);
+        continue;
+      }
+
       if (property === "translate") {
         updateTransitionTranslate(body);
         continue;
@@ -739,13 +757,12 @@ function updateTransitions(world) {
 
 function openBin() {
   const lid = Composite.allBodies(composites.bin).at(-1);
-  Body.setAngle(lid, -Math.PI / 2);
+  angle(lid, (-Math.PI / 2) * 1.5);
 }
 
 function closeBin() {
   const lid = Composite.allBodies(composites.bin).at(-1);
-
-  Body.setAngle(lid, 0);
+  angle(lid, 0);
 }
 
 function rotateUp(fruit) {
@@ -776,4 +793,8 @@ function translate(body, x = 0, y = 0) {
   const originalX = body.position.x;
   const originalY = body.position.y;
   body.transition.translate = { x, y, originalX, originalY };
+}
+function angle(body, radians) {
+  body.transition ??= {};
+  body.transition.angle = radians;
 }
