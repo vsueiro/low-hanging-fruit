@@ -185,6 +185,16 @@
    3.2rem 1.6rem; */
 }
 
+.list ul:empty::before {
+  content: "No items yet";
+  text-align: center;
+  display: grid;
+  opacity: 0.333;
+  position: absolute;
+  inset: 0;
+  place-content: center;
+}
+
 .list li {
   align-items: center;
   display: grid;
@@ -217,7 +227,7 @@
 
 .list li input[type="text"]::placeholder {
   color: indigo;
-  opacity: 0.25;
+  opacity: 0.333;
 }
 
 .list li input[type="range"] {
