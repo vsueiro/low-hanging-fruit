@@ -643,7 +643,7 @@ function updateCart() {
   }
 }
 
-function updateCursor(render, mouse, deltaTime) {
+function updateCursor(render, mouse) {
   if (draggedFruit) {
     hoveredFruit = draggedFruit;
     shrink(flower);
@@ -672,6 +672,7 @@ function updateCursor(render, mouse, deltaTime) {
   Body.setAngle(flower, angle);
 
   if (isInsideRectangle(mouse, treetop)) {
+    render.canvas.dataset.cursor = "pointer";
     grow(flower);
     return;
   }

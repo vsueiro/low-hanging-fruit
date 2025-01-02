@@ -26,6 +26,10 @@
   position: relative;
 }
 
+.tree canvas[data-cursor="pointer"] {
+  cursor: pointer;
+}
+
 .tree canvas[data-cursor="grab"] {
   cursor: grab;
 }
