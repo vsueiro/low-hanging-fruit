@@ -21,6 +21,11 @@ a {
   text-decoration: none;
 }
 
+strong,
+b {
+  font-weight: 600;
+}
+
 *:focus-visible {
   outline: 0.3rem solid deeppink;
 }

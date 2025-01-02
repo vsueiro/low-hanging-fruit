@@ -22,12 +22,44 @@
   position: absolute;
 }
 
+.tree canvas {
+  position: relative;
+}
+
 .tree canvas[data-cursor="grab"] {
   cursor: grab;
 }
 
 .tree canvas[data-cursor="grab"]:active {
   cursor: grabbing;
+}
+
+.axes-labels {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.axes-labels strong:nth-child(1) {
+  display: grid;
+  height: calc(calc(128 / 800) * 100%);
+  left: calc(calc(160 / 800) * 100%);
+  place-content: start center;
+  position: absolute;
+  top: calc(calc(608 / 800) * 100%);
+  width: calc(calc(480 / 800) * 100%);
+}
+
+.axes-labels strong:nth-child(2) {
+  display: grid;
+  height: calc(calc(480 / 800) * 100%);
+  left: 0;
+  place-content: center end;
+  position: absolute;
+  top: calc(calc(96 / 800) * 100%);
+  width: calc(calc(128 / 800) * 100%);
 }
 
 .fields {

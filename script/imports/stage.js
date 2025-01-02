@@ -42,7 +42,7 @@ const emptyButton = document.querySelector(".empty");
 const xScale = d3.scaleLinear().domain([320, 1280]).range([0, 100]).clamp(true);
 const yScale = d3.scaleLinear().domain([192, 1152]).range([0, 100]).clamp(true);
 
-export default function scene() {
+export default function stage() {
   const engine = Engine.create();
   const { world } = engine;
   engine.gravity.y = 2;
