@@ -21,7 +21,6 @@ let lastTimestamp = 0;
 let draggedFruit = false;
 let treetop = false;
 let flower = false;
-// let hoverTimeout = false;
 
 let hitboxes = {}; // for cart and bin regions detection
 let composites = {};
@@ -34,8 +33,11 @@ const collision = {
   hitboxes: 0x0008,
 };
 
+const tabs = document.querySelectorAll(".tabs input");
+const tabContents = document.querySelectorAll("[data-tab]");
 const fields = document.querySelector(".fields");
 const tree = document.querySelector(".tree");
+const list = document.querySelector(".list");
 const clearButton = document.querySelector(".clear");
 const emptyButton = document.querySelector(".empty");
 
@@ -74,6 +76,8 @@ export default function stage() {
   });
 
   data = recoverData();
+
+  addTabs();
 
   treetop = addTreetop(world);
   flower = addFlower(world);
@@ -210,14 +214,19 @@ export default function stage() {
   });
 
   clearButton.addEventListener("click", () => {
-    const warning = "Remove all fruits?";
+    // const warning = "Remove all fruits?";
     // if (confirm(warning)) {
+    if (currentTab() === "list") {
+      clearFruits(world, 0);
+      return;
+    }
+
     clearFruits(world);
     // }
   });
 
   emptyButton.addEventListener("click", () => {
-    const warning = "Remove fruits from cart?";
+    // const warning = "Remove fruits from cart?";
     // if (confirm(warning)) {
     emptyCart(world);
     // }
@@ -505,14 +514,17 @@ function recoverData() {
   return [];
 }
 
-function clearFruits(world) {
+function clearFruits(world, delay = 600) {
   for (const fruit of fruits) {
-    clearFruit(world, fruit);
+    clearFruit(world, fruit, delay);
   }
+
+  setTimeout(() => {
+    updateList();
+  }, delay);
 }
 
-function clearFruit(world, fruit) {
-  const delay = 600;
+function clearFruit(world, fruit, delay = 600) {
   fruit.isStatic = true;
   fruit.userData.field.classList.add("clearing");
   shrink(fruit);
@@ -525,7 +537,7 @@ function clearFruit(world, fruit) {
     if (index > -1) fruits.splice(index, 1);
   }, delay);
 }
-// Ok
+
 function emptyCart(world) {
   const delay = 600;
   emptyButton.disabled = true;
@@ -798,4 +810,65 @@ function translate(body, x = 0, y = 0) {
 function angle(body, radians) {
   body.transition ??= {};
   body.transition.angle = radians;
+}
+
+function addTabs() {
+  tabs.forEach((tab) => {
+    tab.addEventListener("change", (event) => {
+      const { target } = event;
+
+      if (target.checked) {
+        showTab(target.name, target.value);
+      }
+    });
+  });
+}
+
+function showTab(name = "view", value = "tree") {
+  tabContents.forEach((content) => {
+    if (content.dataset.tab !== name) return;
+
+    content.hidden = content.dataset.content !== value;
+  });
+
+  if (value === "list") updateList();
+}
+
+function currentTab() {
+  return Array.from(tabs).find((tab) => tab.checked).value;
+}
+
+function updateList() {
+  // Clear list
+  list.replaceChildren();
+
+  const ul = document.createElement("ul");
+
+  for (const fruit of fruits) {
+    const { location, field } = fruit.userData;
+
+    if (location !== "matrix") continue;
+
+    const { texture } = fruit.render.sprite;
+    const { impact, effort } = getAxesValues(fruit);
+    const text = field.querySelector("textarea").value;
+    const item = document.createElement("li");
+
+    item.style.order = Math.floor(100 - impact);
+
+    item.innerHTML = `
+      <img src="${texture}" alt="">
+      <input type="text" value="${text}" placeholder="Task description">
+      <div>
+        <input type="range" min="0" max="100" value="${impact}" step=".1">
+      </div>
+      <div>
+        <input type="range" min="0" max="100" value="${effort}" step=".1">
+      </div>
+    `;
+
+    ul.append(item);
+  }
+
+  list.append(ul);
 }
