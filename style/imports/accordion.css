@@ -10,12 +10,18 @@ summary {
   display: flex;
   justify-content: space-between;
   list-style-position: outside;
-  padding: 1.2rem 0.8rem 1.2rem 0.8rem;
+  padding: 1.2rem 0.8rem 1.2rem 0rem;
   user-select: none;
 }
 
 summary::marker {
   color: transparent;
+  display: none;
+}
+
+summary::-webkit-details-marker {
+  color: transparent;
+  display: none;
 }
 
 details * {
