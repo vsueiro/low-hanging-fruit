@@ -859,10 +859,10 @@ function updateList() {
     item.innerHTML = `
       <img src="${texture}" alt="">
       <input type="text" value="${text}" placeholder="Task description">
-      <div>
+      <div class="range impact">
         <input type="range" min="0" max="100" value="${impact}" step=".1">
       </div>
-      <div>
+      <div class="range effort">
         <input type="range" min="0" max="100" value="${effort}" step=".1">
       </div>
     `;

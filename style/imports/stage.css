@@ -187,12 +187,12 @@
 
 .list ul:empty::before {
   content: "No items yet";
-  text-align: center;
   display: grid;
-  opacity: 0.333;
-  position: absolute;
   inset: 0;
+  opacity: 0.333;
   place-content: center;
+  position: absolute;
+  text-align: center;
 }
 
 .list li {

@@ -1,0 +1,78 @@
+/* https://www.smashingmagazine.com/2021/12/create-custom-range-input-consistent-browsers/ */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background-color: lavender;
+  border-radius: 0.4rem;
+  height: 0.8rem;
+  margin-top: -0.2rem;
+}
+
+input[type="range"]::-moz-range-track {
+  background-color: lavender;
+  border-radius: 0.4rem;
+  height: 0.8rem;
+  margin-top: -0.2rem;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: tomato;
+  border-radius: 0.8rem;
+  height: 1.2rem;
+  margin-top: -0.2rem;
+  width: 1.2rem;
+}
+
+input[type="range"]::-moz-range-thumb {
+  background-color: tomato;
+  border: none;
+  border-radius: 0.8rem;
+  height: 1.2rem;
+  margin-top: -0.2rem;
+  width: 1.2rem;
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  border: 0.1rem solid lavender;
+  outline: 0.4rem solid deeppink;
+  outline-offset: 0.2rem;
+}
+
+input[type="range"]:focus::-moz-range-thumb {
+  border: 0.1rem solid lavender;
+  outline: 0.4rem solid deeppink;
+  outline-offset: 0.2rem;
+}
+
+/* impact */
+
+.impact input[type="range"]::-webkit-slider-thumb {
+  background-color: tomato;
+}
+
+.impact input[type="range"]::-moz-range-thumb {
+  background-color: tomato;
+}
+
+/* effort */
+
+.effort input[type="range"]::-webkit-slider-thumb {
+  background-color: rebeccapurple;
+}
+
+.effort input[type="range"]::-moz-range-thumb {
+  background-color: rebeccapurple;
+}

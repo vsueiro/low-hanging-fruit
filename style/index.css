@@ -8,9 +8,10 @@
 @import url(imports/stage.css);
 @import url(imports/header.css);
 @import url(imports/accordion.css);
+@import url(imports/tabs.css);
 @import url(imports/icons.css);
 @import url(imports/buttons.css);
-@import url(imports/tabs.css);
+@import url(imports/range.css);
 
 canvas {
   display: block;
