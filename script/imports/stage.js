@@ -42,7 +42,7 @@ const clearButton = document.querySelector(".clear");
 const emptyButton = document.querySelector(".empty");
 
 const xScale = d3.scaleLinear().domain([320, 1280]).range([0, 100]).clamp(true);
-const yScale = d3.scaleLinear().domain([192, 1152]).range([0, 100]).clamp(true);
+const yScale = d3.scaleLinear().domain([192, 1152]).range([100, 0]).clamp(true);
 
 export default function stage() {
   const engine = Engine.create();
@@ -856,17 +856,41 @@ function updateList() {
 
     item.style.order = Math.floor(100 - impact);
 
-    item.innerHTML = `
-      <img src="${texture}" alt="">
-      <input type="text" value="${text}" placeholder="Task description">
-      <div class="range impact">
-        <input type="range" min="0" max="100" value="${impact}" step=".1">
-      </div>
-      <div class="range effort">
-        <input type="range" min="0" max="100" value="${effort}" step=".1">
-      </div>
-    `;
+    const img = document.createElement("img");
+    img.src = texture;
 
+    const textInput = document.createElement("input");
+    textInput.type = "text";
+    textInput.value = text;
+    textInput.placeholder = "Task description";
+
+    const impactInput = document.createElement("input");
+    impactInput.type = "range";
+    impactInput.min = 0;
+    impactInput.max = 100;
+    impactInput.value = impact;
+    impactInput.step = 1;
+    impactInput.oninput = () => {
+      const value = Number(impactInput.value);
+      const x = xScale.invert(value);
+      const y = fruit.position.y;
+      Body.setPosition(fruit, { x, y });
+    };
+
+    const effortInput = document.createElement("input");
+    effortInput.type = "range";
+    effortInput.min = 0;
+    effortInput.max = 100;
+    effortInput.value = effort;
+    effortInput.step = 1;
+    effortInput.oninput = () => {
+      const value = Number(effortInput.value);
+      const x = fruit.position.x;
+      const y = yScale.invert(value);
+      Body.setPosition(fruit, { x, y });
+    };
+
+    item.append(img, textInput, impactInput, effortInput);
     ul.append(item);
   }
 
