@@ -605,6 +605,8 @@ function updateColor(fruit, ripeness) {
 
   fruit.userData.ripeness = ripeness;
   fruit.render.sprite.texture = `./media/sprites/fruit-ripeness-${ripeness}.png`;
+
+  return fruit.render.sprite.texture;
 }
 
 function updateCollision(fruit, category) {
@@ -879,6 +881,9 @@ function updateList() {
       textarea.value = value;
     };
 
+    const impactInputWrapper = document.createElement("div");
+    impactInputWrapper.classList.add("range", "impact");
+
     const impactInput = document.createElement("input");
     impactInput.type = "range";
     impactInput.min = 0;
@@ -890,7 +895,13 @@ function updateList() {
       const x = xScale.invert(value);
       const y = fruit.position.y;
       Body.setPosition(fruit, { x, y });
+
+      const texture = updateColor(fruit);
+      img.src = texture;
     };
+
+    const effortInputWrapper = document.createElement("div");
+    effortInputWrapper.classList.add("range", "effort");
 
     const effortInput = document.createElement("input");
     effortInput.type = "range";
@@ -905,7 +916,9 @@ function updateList() {
       Body.setPosition(fruit, { x, y });
     };
 
-    item.append(img, textInput, impactInput, effortInput);
+    impactInputWrapper.append(impactInput);
+    effortInputWrapper.append(effortInput);
+    item.append(img, textInput, impactInputWrapper, effortInputWrapper);
     ul.append(item);
   }
 
