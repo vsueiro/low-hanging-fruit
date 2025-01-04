@@ -117,6 +117,7 @@
   background: rebeccapurple;
   border: none;
   border-radius: 0.8rem;
+  caret-color: currentColor;
   color: ghostwhite;
   display: block;
   font-family: inherit;
@@ -216,6 +217,7 @@
   background: color-mix(in srgb, lavender 60%, transparent 40%);
   border: none;
   border-radius: 0.8rem;
+  caret-color: currentColor;
   color: indigo;
   display: block;
   font-family: inherit;
