@@ -187,7 +187,7 @@
 }
 
 .list ul:empty::before {
-  content: "No items yet";
+  content: "No fruits on tree";
   display: grid;
   inset: 0;
   opacity: 0.333;
