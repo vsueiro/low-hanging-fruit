@@ -43,6 +43,7 @@ const emptyButton = document.querySelector(".empty");
 
 const xScale = d3.scaleLinear().domain([320, 1280]).range([0, 100]).clamp(true);
 const yScale = d3.scaleLinear().domain([192, 1152]).range([100, 0]).clamp(true);
+const ripeScale = d3.scaleLinear().domain([40, 60]).range([0, 100]).clamp(true);
 
 export default function stage() {
   const engine = Engine.create();
@@ -236,6 +237,8 @@ export default function stage() {
     data = extractData(fruits);
     storeData(data);
   });
+
+  loadTextures();
 }
 
 function isInsideRectangle(body, rectangle) {
@@ -598,15 +601,27 @@ function getAxesValues(fruit) {
 }
 
 function updateColor(fruit, ripeness) {
-  if (ripeness === undefined) {
+  if (ripeness === undefined || ripeness % 10 !== 0) {
     const { impact } = getAxesValues(fruit);
-    ripeness = impact < 50 ? 0 : 100;
+
+    ripeness = ripeScale(impact);
+    ripeness = Math.round(ripeness / 10) * 10; // Get multiples of 10
   }
 
   fruit.userData.ripeness = ripeness;
   fruit.render.sprite.texture = `./media/sprites/fruit-ripeness-${ripeness}.png`;
 
   return fruit.render.sprite.texture;
+}
+
+function loadTextures() {
+  for (let ripeness = 0; ripeness <= 100; ripeness += 10) {
+    const img = new Image();
+    img.onload = () => {
+      console.log("loaded", img);
+    };
+    img.src = `./media/sprites/fruit-ripeness-${ripeness}.png`;
+  }
 }
 
 function updateCollision(fruit, category) {
