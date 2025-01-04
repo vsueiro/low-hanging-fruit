@@ -468,6 +468,10 @@ function addFruit(world, x, y, text = "", angle = 0, ripeness = undefined, locat
   return fruit;
 }
 
+function cleanText(string) {
+  return string.replace(/[\n\t]/g, " ").replace(/ {2,}/g, " ");
+}
+
 function addField(text = "") {
   const field = document.createElement("div");
   field.classList.add("field");
@@ -477,6 +481,9 @@ function addField(text = "") {
   textarea.cols = 16;
   textarea.placeholder = "Task description";
   textarea.value = text;
+  textarea.oninput = () => {
+    textarea.value = cleanText(textarea.value);
+  };
 
   field.append(textarea);
   fields.append(field);
@@ -851,18 +858,26 @@ function updateList() {
 
     const { texture } = fruit.render.sprite;
     const { impact, effort } = getAxesValues(fruit);
-    const text = field.querySelector("textarea").value;
+    const textarea = field.querySelector("textarea");
+    const text = textarea.value;
     const item = document.createElement("li");
 
+    // Visually sort by highest impact first
     item.style.order = Math.floor(100 - impact);
 
     const img = document.createElement("img");
     img.src = texture;
+    img.alt = "";
 
     const textInput = document.createElement("input");
     textInput.type = "text";
     textInput.value = text;
     textInput.placeholder = "Task description";
+    textInput.oninput = () => {
+      textInput.value = cleanText(textInput.value);
+      const value = textInput.value;
+      textarea.value = value;
+    };
 
     const impactInput = document.createElement("input");
     impactInput.type = "range";
