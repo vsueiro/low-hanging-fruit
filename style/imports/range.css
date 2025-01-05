@@ -1,3 +1,16 @@
+.range {
+  position: relative;
+}
+
+.range .progress {
+  border-radius: 0.4rem 0 0 0.4rem;
+  height: 0.8rem;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 1.2rem;
+}
+
 /* https://www.smashingmagazine.com/2021/12/create-custom-range-input-consistent-browsers/ */
 
 input[type="range"] {
@@ -67,6 +80,10 @@ input[type="range"]:focus::-moz-range-thumb {
   background-color: tomato;
 }
 
+.impact .progress {
+  background-color: tomato;
+}
+
 /* effort */
 
 .effort input[type="range"]::-webkit-slider-thumb {
@@ -74,5 +91,9 @@ input[type="range"]:focus::-moz-range-thumb {
 }
 
 .effort input[type="range"]::-moz-range-thumb {
+  background-color: rebeccapurple;
+}
+
+.effort .progress {
   background-color: rebeccapurple;
 }

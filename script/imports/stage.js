@@ -899,6 +899,10 @@ function updateList() {
     const impactInputWrapper = document.createElement("div");
     impactInputWrapper.classList.add("range", "impact");
 
+    const impactProgress = document.createElement("div");
+    impactProgress.classList.add("progress");
+    impactProgress.style.width = `calc( ${impact}% - ${(impact / 100) * 1.2 - 0.6}rem`;
+
     const impactInput = document.createElement("input");
     impactInput.type = "range";
     impactInput.min = 0;
@@ -913,10 +917,16 @@ function updateList() {
 
       const texture = updateColor(fruit);
       img.src = texture;
+
+      impactProgress.style.width = `calc( ${value}% - ${(value / 100) * 1.2 - 0.6}rem`;
     };
 
     const effortInputWrapper = document.createElement("div");
     effortInputWrapper.classList.add("range", "effort");
+
+    const effortProgress = document.createElement("div");
+    effortProgress.classList.add("progress");
+    effortProgress.style.width = `calc( ${effort}% - ${(effort / 100) * 1.2 - 0.6}rem`;
 
     const effortInput = document.createElement("input");
     effortInput.type = "range";
@@ -929,10 +939,12 @@ function updateList() {
       const x = fruit.position.x;
       const y = yScale.invert(value);
       Body.setPosition(fruit, { x, y });
+
+      effortProgress.style.width = `calc( ${value}% - ${(value / 100) * 1.2 - 0.6}rem`;
     };
 
-    impactInputWrapper.append(impactInput);
-    effortInputWrapper.append(effortInput);
+    impactInputWrapper.append(impactProgress, impactInput);
+    effortInputWrapper.append(effortProgress, effortInput);
     item.append(img, textInput, impactInputWrapper, effortInputWrapper);
     ul.append(item);
   }
