@@ -7,16 +7,17 @@ button {
   background: Lavender;
   border: none;
   border-radius: 999px;
+  box-shadow: 0 0 0 0.3rem ghostwhite;
   color: inherit;
   cursor: pointer;
   display: flex;
   font-family: inherit;
   font-size: inherit;
   gap: 0.8rem;
-  height: 4.8rem;
+  height: 4rem;
   justify-content: center;
   line-height: 1.5;
-  padding: 0 1.6rem;
+  padding: 0 1.2rem;
   position: relative;
   transition: opacity 0.2s, background-color 0.2s;
   user-select: none;
@@ -42,7 +43,7 @@ button {
   color: tomato;
   position: absolute;
   right: 22%;
-  translate: 50% 50%;
+  translate: 50% calc(50% + 0.3rem);
 }
 
 .button.empty:hover {

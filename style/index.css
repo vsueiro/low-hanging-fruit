@@ -12,8 +12,5 @@
 @import url(imports/icons.css);
 @import url(imports/buttons.css);
 @import url(imports/range.css);
-
-canvas {
-  display: block;
-  width: 100%;
-}
+@import url(imports/range.css);
+@import url(imports/responsive.css);

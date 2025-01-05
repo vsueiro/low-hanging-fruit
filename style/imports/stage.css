@@ -23,7 +23,9 @@
 }
 
 .tree canvas {
+  display: block;
   position: relative;
+  width: 100%;
 }
 
 .tree canvas[data-cursor="pointer"] {

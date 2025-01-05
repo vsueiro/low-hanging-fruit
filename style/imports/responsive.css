@@ -1,0 +1,16 @@
+@media (max-width: 960px) {
+  html {
+    font-size: calc(calc(9 / 16) * 100%);
+  }
+}
+
+@media (max-width: 864px) {
+  html {
+    font-size: calc(calc(8 / 16) * 100%);
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+  }
+}
