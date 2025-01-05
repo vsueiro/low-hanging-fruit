@@ -868,6 +868,13 @@ function updateList() {
 
   const ul = document.createElement("ul");
 
+  // Sort by impact
+  fruits.sort((a, b) => {
+    const aImpact = getAxesValues(a).impact;
+    const bImpact = getAxesValues(b).impact;
+    return bImpact - aImpact;
+  });
+
   for (const fruit of fruits) {
     const { location, field } = fruit.userData;
 
