@@ -6,12 +6,15 @@ details {
 }
 
 summary {
+  align-items: center;
   cursor: pointer;
   display: flex;
+  height: 4.8rem;
   justify-content: space-between;
   list-style-position: outside;
-  padding: 1.2rem 0.8rem 1.2rem 0rem;
+  padding: 0 0.8rem 0 0;
   user-select: none;
+  white-space: nowrap;
 }
 
 summary::marker {

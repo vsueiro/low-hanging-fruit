@@ -13,12 +13,14 @@ button {
   font-family: inherit;
   font-size: inherit;
   gap: 0.8rem;
+  height: 4.8rem;
   justify-content: center;
   line-height: 1.5;
-  padding: 1.2rem 1.8rem;
+  padding: 0 1.6rem;
   position: relative;
   transition: opacity 0.2s, background-color 0.2s;
   user-select: none;
+  white-space: nowrap;
 }
 
 .button.clear {
@@ -39,8 +41,8 @@ button {
   bottom: 0;
   color: tomato;
   position: absolute;
-  right: 2.4rem;
-  translate: 0 50%;
+  right: 22%;
+  translate: 50% 50%;
 }
 
 .button.empty:hover {
