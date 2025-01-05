@@ -238,3 +238,26 @@
   /* width: 9.6rem; */
   width: 100%;
 }
+
+.list li:first-child .impact::before,
+.list li:first-child .effort::before {
+  content: "";
+  display: block;
+  font-weight: 600;
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  text-align: center;
+  translate: 0 calc(-100% - 0.8rem);
+  width: 100%;
+}
+
+.list li:first-child .impact::before {
+  color: tomato;
+  content: "Impact";
+}
+
+.list li:first-child .effort::before {
+  color: rebeccapurple;
+  content: "Effort";
+}
