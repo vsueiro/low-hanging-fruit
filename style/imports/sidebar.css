@@ -8,3 +8,11 @@
   line-height: 1;
   opacity: 0.4;
 }
+
+.donate {
+  display: inline-block;
+}
+
+.donate img {
+  display: block;
+}

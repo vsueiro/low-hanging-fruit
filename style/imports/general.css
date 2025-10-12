@@ -21,6 +21,10 @@ a {
   text-decoration: none;
 }
 
+aside a {
+  text-decoration: underline;
+}
+
 strong,
 b {
   font-weight: 600;

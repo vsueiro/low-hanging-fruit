@@ -27,7 +27,7 @@ summary::-webkit-details-marker {
   display: none;
 }
 
-details * {
+details p, details, ul, details ol, details a {
   margin: 0;
 }
 
@@ -43,10 +43,18 @@ details[open]::details-content {
 
 details p {
   font-size: smaller;
-  padding-block: 1rem;
 } 
 
-details ul {
+details > div {
+  padding-block-start: 1rem;
+  padding-block-end: 2rem;
+}
+
+details > div > *:not(:last-child) {
+  margin-block-end: 1rem;
+}
+
+details ul, details ol {
   font-size: smaller;
   padding-inline-start: 2em;
 }

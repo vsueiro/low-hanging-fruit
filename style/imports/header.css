@@ -15,6 +15,7 @@ header h1 span {
 
 header h1 strong {
   color: tomato;
+  font-weight: unset;
 }
 
 header a {
