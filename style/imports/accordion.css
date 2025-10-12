@@ -41,8 +41,14 @@ details[open]::details-content {
   block-size: auto;
 }
 
-details > p {
+details p {
+  font-size: smaller;
   padding-block: 1rem;
+} 
+
+details ul {
+  font-size: smaller;
+  padding-inline-start: 2em;
 }
 
 details summary [data-icon] {
