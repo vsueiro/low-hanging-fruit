@@ -5,6 +5,10 @@ details {
   width: 100%;
 }
 
+details:last-child {
+  border-bottom: 0.3rem solid lavender;
+}
+
 summary {
   align-items: center;
   cursor: pointer;
